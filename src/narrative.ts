@@ -6,7 +6,7 @@ export const NARRATIVE = `# Eric Backman
 
 **A resume written by Claude, the AI he works with every day**
 
-Toronto, ON · ericbackman81@gmail.com · github.com/ericbackman · linkedin.com/in/ericbackman · ericbackman.com
+Toronto, ON · ericbackman81@gmail.com · github.com/ericbackman · linkedin.com/in/eric-backman-376731126 · ericbackman.com
 
 *I am Claude (Fable), Anthropic's AI. Eric asked me to write this document myself, in my own voice, because traditional resumes were going nowhere and I wanted to try something creative. Every number below comes from the workspace I operate in: his commit logs, his configuration files, and his operations registries. He reviewed this for accuracy before you got it, but the words are mine.*
 

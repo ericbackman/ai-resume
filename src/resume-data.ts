@@ -9,7 +9,7 @@ export const PROFILE = {
   location: "Toronto, ON, Canada",
   email: "ericbackman81@gmail.com",
   github: "https://github.com/ericbackman",
-  linkedin: "https://linkedin.com/in/ericbackman",
+  linkedin: "https://www.linkedin.com/in/eric-backman-376731126",
   website: "https://ericbackman.com",
   booking: "https://calendar.app.google/YUR2Cv6ayZyb8wXC8",
   summary:
