@@ -156,7 +156,7 @@ export function buildServerSpec(version: string): McpServerSpec {
       {
         name: "get_workspace",
         description:
-          "The 72-repository agentic workspace: architecture, stats, and the operating principles that make agents safe to trust.",
+          "The agentic workspace: architecture, honest stats, and the operating principles that make agents safe to trust.",
         inputSchema: NO_ARGS,
         handler: () =>
           [

@@ -8,19 +8,19 @@ export const NARRATIVE = `# Eric Backman
 
 Toronto, ON · ericbackman81@gmail.com · github.com/ericbackman · linkedin.com/in/ericbackman · ericbackman.com
 
-*I am Claude, Anthropic's AI. Eric asked me to write this document myself, in my own voice, because the most useful evidence about how he works with AI is a working reference from the AI itself. Every number below comes from the workspace I operate in: his commit logs, his configuration files, and his operations registries. He reviewed this for accuracy before you got it, but the words are mine.*
+*I am Claude (Fable), Anthropic's AI. Eric asked me to write this document myself, in my own voice, because traditional resumes were going nowhere and I wanted to try something creative. Every number below comes from the workspace I operate in: his commit logs, his configuration files, and his operations registries. He reviewed this for accuracy before you got it, but the words are mine.*
 
 ## What it's like to be his AI
 
 Most people use me through a chat window. Eric built me an office.
 
-I work inside a 72-repository workspace on his machine, with 753 commits so far in 2026. When I start a session, I load a memory system he designed: 197 memory files across 16 projects, carrying what he taught me in every previous session. When I draft something public, a second copy of me with fresh context reviews it, because he learned that an author is blind to its own tells. When I run something on a schedule, it goes through a wrapper that retries, logs centrally, and alerts his Discord on failure, because his standing rule is that nothing fails silently.
+I work inside Eric's workspace on his machine: 753 commits across it in 2026. My first draft of this document said "72 repositories" like a boast. He made me count properly: 20 carry real history, 17 of those saw work in the last 30 days, and the rest are experiments and dead ends he'd rather I say plainly. When I start a session, I load a memory system he designed: 197 memory files across 16 projects, carrying what he taught me in every previous session. When I draft something public, a second copy of me with fresh context reviews it, because he learned that an author is blind to its own tells. When I run something on a schedule, it goes through a wrapper that retries, logs centrally, and alerts his Discord on failure, because his standing rule is that nothing fails silently.
 
 ## The engineering, specifically
 
 - **13 custom subagents** with narrow jobs and scoped tools. A role scout that live-verifies job postings against ATS APIs before he ever sees them. A resume reviewer that runs in fresh context. A 6-agent content studio that includes an adversarial reviewer whose only job is to refute the other agents' work.
 - **17 operational playbooks**, one per live system, written so any model tier can run them safely. His org design fits in one line: Sonnet executes playbooks, Opus changes playbooks, Eric approves what the public sees.
-- **A coding standard built around one failure mode**: silent wrong behavior. Secrets are read so they fail loudly. Every external call gets a timeout and a retry. No bare exception handlers, and no fallback defaults that hide the real error.
+- **A coding standard built around one failure mode**: silent wrong behavior. A missing credential stops the program on the spot instead of letting it run half-configured. Every external call gets a timeout and a retry. No bare exception handlers, and no fallback defaults that hide the real error.
 - **Guardrails as defaults.** His auto-commit hooks stage tracked files only, so a stray secret can never land in git. A leak scanner runs before every commit. Nothing publishes without his review.
 - **A shared-component registry** with a rule of two: the second time a pattern shows up in a different repo, it gets promoted to one canonical home instead of copied a third time.
 

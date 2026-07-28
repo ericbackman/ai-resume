@@ -13,7 +13,7 @@ export const PROFILE = {
   website: "https://ericbackman.com",
   booking: "https://calendar.app.google/YUR2Cv6ayZyb8wXC8",
   summary:
-    "Data engineer and applied AI builder in Toronto. At BMO he builds the data platform and multi-agent LLM pipelines behind FRTB regulatory capital investigations. At home he runs a 72-repository agentic workspace where Claude Code operates with real responsibility behind engineered guardrails: memory, review gates, playbooks, and a session-level trust score. This server is itself one of his projects.",
+    "Data engineer and applied AI builder in Toronto. At BMO he builds the data platform and multi-agent LLM pipelines behind FRTB regulatory capital investigations. At home he runs an agentic workspace where Claude Code operates with real responsibility behind engineered guardrails: memory, review gates, playbooks, and a session-level trust score. This server is itself one of his projects.",
 };
 
 export interface Part {
@@ -299,9 +299,10 @@ export const PROJECTS: Project[] = [
 
 export const WORKSPACE = {
   headline:
-    "A 72-repository agentic workspace where Claude Code operates with real responsibility behind engineered guardrails.",
+    "An agentic workspace where Claude Code operates with real responsibility behind engineered guardrails.",
   stats: [
-    "72 git repositories, 753 commits in the first 7 months of 2026",
+    "20 repositories with substantial history (10+ commits), 17 of them active in the last 30 days. 74 sit on disk in total; the rest are experiments and dead ends, counted honestly.",
+    "753 commits across the workspace in the first 7 months of 2026",
     "26 live subdomains under ericbackman.com (this server is the newest)",
     "289 logged agent sessions across 39 projects: 25,610 tool calls, 5,427 files changed, every session trust-scored",
     "13 custom subagents with narrow jobs and scoped tools",
@@ -311,7 +312,7 @@ export const WORKSPACE = {
     "4 MCP servers built: YouTube operations, sports databases, personal data platform, and this resume",
   ],
   principles: [
-    "Silent wrong behavior is the enemy: secrets fail loudly, every external call gets a timeout and retry, no bare exception handlers, no fallback defaults that hide the real error.",
+    "Silent wrong behavior is the enemy: a missing credential stops the run on the spot, every external call gets a timeout and retry, no bare exception handlers, no fallback defaults that hide the real error.",
     "Model tiering as org design: Sonnet executes playbooks, Opus changes playbooks, Eric approves what the public sees.",
     "Fresh-context review before anything ships, because an author is blind to its own tells.",
     "Rule of two: the second time a pattern is built in a different repo, it is promoted to one canonical home with a tracked consumer list. Clones carry a birthmark comment naming their source.",

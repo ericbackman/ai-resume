@@ -21,7 +21,7 @@ const SPEC = buildServerSpec("0.0.0");
 // ---- server-rendered fragments -------------------------------------------
 
 const STAT_TILES: Array<{ value: string; label: string }> = [
-  { value: "72", label: "git repositories" },
+  { value: "20", label: "repos with real history (of 74 on disk)" },
   { value: "753", label: "commits in 2026" },
   { value: "289", label: "trust-scored agent sessions" },
   { value: "26", label: "live subdomains" },
