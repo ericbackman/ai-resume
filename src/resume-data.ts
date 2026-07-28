@@ -1,6 +1,7 @@
 // All resume content, in one place. Every number here was pulled from the
-// workspace it describes (commit logs, config files, operations registries)
-// on 2026-07-28. Update this file, redeploy, done.
+// workspace it describes (commit logs, config files, operations registries,
+// and the data files themselves — never READMEs, which drift) on 2026-07-28.
+// Update this file, redeploy, done.
 
 export const PROFILE = {
   name: "Eric Backman",
@@ -27,18 +28,19 @@ export interface Project {
   url?: string;
 }
 
-// Curated to the most complete systems. Tag "agentic-ai" marks projects where
-// AI agents do the operating, not just the authoring.
+// Curated to the most complete systems, verified against their own data files.
+// Tag "agentic-ai" marks projects where AI agents do the operating, not just
+// the authoring. Access-gated personal tools are deliberately not listed.
 export const PROJECTS: Project[] = [
   {
     slug: "ai-resume",
     name: "This server (AI-native resume)",
     oneLiner: "The MCP server you are querying right now.",
     description:
-      "A dependency-free Model Context Protocol server on a Cloudflare Worker. Serves Eric's resume as structured tools any AI assistant can call, plus a human landing page and llms.txt. The narrative resume it serves was written by Claude from inside Eric's workspace.",
+      "A dependency-free Model Context Protocol server on a Cloudflare Worker. Serves Eric's resume as structured tools any AI assistant can call, plus a human landing page and llms.txt. The narrative resume it serves was written by Claude from inside Eric's workspace. It is the 4th MCP server he has built (after YouTube operations, the sports data platform, and his personal data platform).",
     status: "Live at ai.ericbackman.com",
     tech: ["TypeScript", "Cloudflare Workers", "MCP (Streamable HTTP)"],
-    numbers: ["0 runtime dependencies", "9 tools"],
+    numbers: ["0 runtime dependencies", "9 tools", "14 unit tests"],
     tags: ["agentic-ai", "live"],
     url: "https://ai.ericbackman.com",
   },
@@ -47,136 +49,182 @@ export const PROJECTS: Project[] = [
     name: "YouTube content studio",
     oneLiner: "A 6-agent studio that produces and schedules a real YouTube channel.",
     description:
-      "Agents research (query real datasets, never scrape claims), storyboard, source license-cleared imagery, and render scuba-diving videos. An adversarial reviewer agent tries to refute every script before render. Daily scheduled jobs pre-render, upload as private, and monitor analytics. Nothing publishes without Eric's review: the human gate is enforced by design, not by discipline.",
-    status: "Live channel, daily automated render/upload/monitor jobs",
-    tech: ["Python", "ffmpeg", "YouTube Data API", "Claude subagents", "PowerShell scheduling"],
-    numbers: ["6 specialized agents", "3 daily scheduled jobs plus a weekly channel-manager loop"],
+      "Agents research, storyboard, source license-cleared imagery, and render scuba-diving videos: raw 4K footage in, color-corrected 9:16 Shorts and long-form ambient comps out, uploaded and scheduled through the YouTube API. An adversarial reviewer agent tries to refute every script. Daily scheduled jobs render, upload as private, and monitor analytics; a weekly channel-manager loop diagnoses performance and hands Eric exactly one decision. Nothing publishes without his review.",
+    status: "Live channel (youtube.com/@backmandiving), 5 scheduled jobs",
+    tech: ["Python (stdlib render pipeline)", "ffmpeg", "YouTube Data + Analytics APIs", "Claude subagents"],
+    numbers: ["111 videos uploaded", "74 Shorts public", "217-entry publish queue", "308 source clips catalogued"],
     tags: ["agentic-ai", "automated", "live"],
+    url: "https://youtube.com/@backmandiving",
   },
   {
     slug: "agent-audit",
     name: "Agent reliability dashboard",
     oneLiner: "Scores every logged Claude Code session on how far it ran unattended.",
     description:
-      "Turns the generation-to-verification loop into a 0-to-100 trust score per session. A needed human correction hard-caps a session at 60, because stepping in at all proves it wasn't safe to run alone. After a silent 8-day deploy freeze, the page gained a client-side staleness guard so a frozen dashboard flags its own age instead of failing quietly.",
+      "A global Stop hook logs every session; the dashboard turns the generation-to-verification loop into a 0-to-100 trust score. A needed human correction hard-caps a session at 60, because stepping in at all proves it wasn't safe to run alone. After a silent 8-day deploy freeze, the page gained a staleness guard so a frozen dashboard flags its own age instead of failing quietly.",
     status: "Live at loop.ericbackman.com (Access-gated), refreshed weekly by a scheduled job",
-    tech: ["Python (stdlib)", "Cloudflare Workers", "Cloudflare Access", "hand-rolled SVG charts"],
-    numbers: ["213+ scored sessions", "correction hard-cap at 60/100"],
+    tech: ["Python (stdlib, tested)", "Cloudflare Workers", "Cloudflare Access", "hand-rolled SVG charts"],
+    numbers: [
+      "289 logged sessions across 39 projects",
+      "25,610 tool calls and 5,427 files changed measured",
+      "average trust 81/100, correction rate 0.21",
+    ],
     tags: ["agentic-ai", "live", "automated"],
     url: "https://loop.ericbackman.com",
   },
   {
-    slug: "data-explorer",
-    name: "Sports data platform",
-    oneLiner: "Local SQLite databases built to answer any sports question in plain English.",
-    description:
-      "Multi-sport databases (NBA, NFL, MLB, PGA, betting markets) with documented schemas, so an AI agent can translate a plain-English question into validated SQL and check the answer against a known fact before trusting it. Fed by a separate daily ingestion service (sports-crons) running on a home server.",
-    status: "Complete and in daily use, ingestion scheduled daily",
-    tech: ["Python", "SQLite", "Claude Code"],
-    numbers: [],
-    tags: ["data", "agentic-ai", "automated"],
-  },
-  {
     slug: "paper-trader",
     name: "Agentic paper trader",
-    oneLiner: "An AI trading desk that runs its own session every weekday morning.",
+    oneLiner: "Claude runs a trading session every weekday morning and publishes its reasoning.",
     description:
-      "Scheduled agentic system that reviews positions and executes paper trades each weekday at 9:45, with reports served from a Cloudflare Worker. Paper only, by design: the point is measuring how well an agent operates a full decision loop unattended, not the returns.",
-    status: "Runs every weekday at 9:45 via scheduled job",
-    tech: ["Python", "Claude Code", "Cloudflare Workers"],
-    numbers: [],
-    tags: ["agentic-ai", "automated"],
+      "Every weekday at 9:45 Claude reviews the portfolio through Alpaca's paper API, places trades, and writes its reasoning. A Cloudflare Worker renders the last 90 days of decisions on a public dashboard. Paper only, by design: the point is measuring how well an agent operates a full decision loop unattended, in public, with a paper trail.",
+    status: "Runs every weekday at 9:45, dashboard live at trader.ericbackman.com",
+    tech: ["Python", "alpaca-py (paper only)", "Anthropic SDK", "TypeScript", "Cloudflare Workers + D1"],
+    numbers: ["90-day public decision log"],
+    tags: ["agentic-ai", "automated", "live"],
+    url: "https://trader.ericbackman.com",
   },
   {
-    slug: "dive-map",
-    name: "Interactive dive map",
-    oneLiner: "Geospatial catalogue of all 156 dive sites Eric has visited.",
+    slug: "video-essays",
+    name: "Claim-locked video essays",
+    oneLiner: "Data-driven video essays where a fabricated number is structurally impossible.",
     description:
-      "Full-stack geospatial web app: site details, depth profiles, dive types, ratings, and YouTube embeds render dynamically from a structured JSON schema, no hardcoded HTML per site.",
-    status: "Live on GitHub Pages",
-    tech: ["Leaflet.js", "JavaScript", "JSON", "GitHub Pages"],
-    numbers: ["156 dive sites", "8+ countries"],
-    tags: ["web", "live"],
-    url: "https://ericbackman.github.io/dive-map",
+      "A pipeline that turns a verifiable dataset into a narrated, chart-illustrated video essay where every number on screen traces to a real data row. Research is a query, not a scrape. The script agent may only state numbers present in a verified claim payload, enforced by a deterministic audit plus adversarial multi-agent review. Voice is self-hosted TTS so re-rendering is free. Reference essay: 'The 54-Hole Lead Is a Lie', built on a golf database covering every PGA Tour event 2005-2026 and major history to 1960.",
+    status: "Complete, reference essay produced",
+    tech: ["Python", "ffmpeg", "Pillow", "Kokoro TTS (self-hosted)", "Claude Opus", "adversarial review agents"],
+    numbers: ["every on-screen number traces to a data row", "majors history to 1960"],
+    tags: ["agentic-ai", "data"],
+  },
+  {
+    slug: "askviz",
+    name: "AskViz",
+    oneLiner: "Ask a plain-English question about your data, get a chart on your phone.",
+    description:
+      "A Cloudflare Worker turns a plain-English question into a Vega-Lite chart over Eric's real (personal) betting history, rendered in a phone PWA. The AI-safety design is the point: Claude never sees a raw record and never does arithmetic. It only chooses a grouping and axis mapping; TypeScript computes every figure, so a fabricated number is structurally impossible. Ships an offline planner that works with no API key at all.",
+    status: "v0 deployed",
+    tech: ["TypeScript", "Cloudflare Workers", "Claude API", "Vega-Lite", "PWA"],
+    numbers: ["19 passing tests", "~20 KB gzipped bundle"],
+    tags: ["agentic-ai", "data"],
+  },
+  {
+    slug: "data-explorer",
+    name: "Sports data platform",
+    oneLiner: "Local multi-sport SQLite databases built to answer any sports question in plain English.",
+    description:
+      "Normalized databases for the NBA, NFL, NHL, PGA, and betting markets, with documented schemas and a read-only MCP server so any Claude surface can translate a plain-English question into validated SQL and check the answer against a known fact. Fed by a separate daily ingestion service (the write path) on a home server; this repo is the read path.",
+    status: "Complete and in daily use",
+    tech: ["Python", "SQLite", "MCP server", "nba_api", "nflverse"],
+    numbers: ["7M-row golf holes table", "NBA box scores 1946-present", "NFL 1999-present", "NHL 1997-present"],
+    tags: ["data", "agentic-ai"],
   },
   {
     slug: "job-hunt",
     name: "Job-hunt operating system",
     oneLiner: "The job search itself, run as an agentic system.",
     description:
-      "A daily watcher sweeps 23 company job boards and diffs postings by ATS id. A reconciler agent reads Gmail and keeps the application tracker honest. A fresh-context reviewer agent audits every resume against a checklist distilled from a post-mortem of 4 fast rejections. This MCP server is the newest module.",
-    status: "Live, daily scheduled sweep with a liveness watchdog",
+      "A daily watcher sweeps 23 company job boards and diffs postings by ATS id, with an independent liveness watchdog alerting if the sweep goes stale. A reconciler agent reads Gmail and keeps the application tracker honest. A fresh-context reviewer agent audits every resume against a checklist distilled from a post-mortem of 4 fast rejections. This MCP server is the newest module.",
+    status: "Live, daily scheduled sweep plus watchdog",
     tech: ["Node.js", "Claude subagents", "ATS JSON APIs", "Gmail"],
-    numbers: ["23 job boards swept daily", "4-rejection audit turned into a pre-render gate"],
+    numbers: ["23 job boards swept daily", "4 purpose-built subagents"],
     tags: ["agentic-ai", "automated"],
+  },
+  {
+    slug: "newsletter",
+    name: "Self-writing engineering newsletter",
+    oneLiner: "A weekly newsletter that reads his AI's work logs and writes itself.",
+    description:
+      "Reads the week's Claude Code session transcripts and git history across the whole workspace, ranks projects by how much Eric personally steered them, generates charts, and publishes a 'here's what I built' issue. Transcript parsing is pure Python in milliseconds; the model only ever sees a ~2 KB digest.",
+    status: "Live archive at rickleberry.ericbackman.com (weekly job, currently paused by choice)",
+    tech: ["Python", "Anthropic API", "Cloudflare Pages"],
+    numbers: ["7 published issues", "~100 MB of transcripts condensed to ~2 KB per issue"],
+    tags: ["agentic-ai", "automated", "live"],
+    url: "https://rickleberry.ericbackman.com",
+  },
+  {
+    slug: "frm-study",
+    name: "FRM Level 1 study system",
+    oneLiner: "A zero-inference personal tutor for the FRM Part I exam.",
+    description:
+      "Fully static exam-prep platform built on evidence-based learning: retrieval practice, FSRS-4.5 spaced repetition per question, interleaving, adaptive sampling by exam weight and per-book weakness, and blueprint-weighted timed mocks. Content was AI-authored under a validating build script; the served site makes zero API calls.",
+    status: "Live at frm.ericbackman.com",
+    tech: ["Python build", "static HTML/JS", "vendored KaTeX", "GitHub Pages"],
+    numbers: ["501 questions across 12 banks", "60 textbook-chapter note sets"],
+    tags: ["web", "live"],
+    url: "https://frm.ericbackman.com",
+  },
+  {
+    slug: "dive-map",
+    name: "Interactive dive map",
+    oneLiner: "A world map of every scuba dive Eric has logged.",
+    description:
+      "Interactive map with pins, dive metadata (depth, date, type, highlights, rating), trip grouping, and video embeds, all rendered from a structured JSON schema with no build step.",
+    status: "Live at dives.ericbackman.com and GitHub Pages",
+    tech: ["Leaflet.js", "JavaScript", "JSON", "GitHub Actions"],
+    numbers: ["147 dives across 20 trips (counted from the data file)"],
+    tags: ["web", "live"],
+    url: "https://dives.ericbackman.com",
+  },
+  {
+    slug: "gauntlet",
+    name: "The $15 Gauntlet",
+    oneLiner: "Build a $15 team, go 16-0. A game family with a tested difficulty contract.",
+    description:
+      "Browser game: assemble an NBA team from a 5x5 price-tier grid with $15, then survive four boss teams. The win model is shown transparently in-game, and the difficulty contract is enforced by tests over 500 simulated grids. The template spawned MLB and NHL variants with a byte-identical RNG core.",
+    status: "Live at 15.ericbackman.com (plus MLB and NHL variants)",
+    tech: ["TypeScript", "vitest"],
+    numbers: ["500-grid simulated difficulty contract", "3 sport variants from 1 template"],
+    tags: ["web", "live"],
+    url: "https://15.ericbackman.com",
+  },
+  {
+    slug: "discord-bots",
+    name: "Discord bot fleet",
+    oneLiner: "A canonical Worker bot template cloned into 5 live prediction and clan bots.",
+    description:
+      "Serverless Discord bots on Cloudflare Workers: a daily sports picks league (NBA/NHL/MLB/NFL), sumo and F1 variants, and an OSRS clan tracker (public repo). One canonical template; fixes land there first and sweep the clones, each carrying a birthmark comment naming its source. Ed25519-verified interactions, D1 storage, idempotent 15-minute crons.",
+    status: "Live bots, scheduled crons",
+    tech: ["TypeScript", "Cloudflare Workers + D1", "Discord interactions", "vitest"],
+    numbers: ["5 bots from 1 canonical template"],
+    tags: ["web", "live", "automated"],
+    url: "https://github.com/ericbackman/osrs-clan-bot",
   },
   {
     slug: "life-tracker",
     name: "Life Tracker, MCP server + personal data platform",
     oneLiner: "Personal data platform with an MCP server exposing read-only query tools to Claude.",
     description:
-      "Journal, tasks, health, and reading data behind a FastAPI backend with SQLite persistence and encryption at rest. A FastMCP server exposes 5 read-only query tools, with user-controlled gates excluding sensitive entries by default.",
+      "Journal, tasks, health, and reading data behind a FastAPI backend with SQLite persistence and encryption at rest. A FastMCP server exposes 5 read-only query tools, with a server-side gate excluding sensitive entries by default. Now pivoting to a native iOS app: SwiftUI, CloudKit private database, no backend, Anthropic API called from the device.",
     status: "Complete, in personal use",
-    tech: ["Python", "FastAPI", "FastMCP", "SQLAlchemy", "SQLite", "Fernet"],
+    tech: ["Python", "FastAPI", "FastMCP", "SQLite", "SwiftUI", "CloudKit"],
     numbers: ["5 read-only MCP tools"],
     tags: ["agentic-ai", "data"],
   },
   {
-    slug: "newsletter",
-    name: "LLM newsletter pipeline",
-    oneLiner: "Weekly engineering digest generated from his own session transcripts and git history.",
+    slug: "side-bet",
+    name: "Side Bet",
+    oneLiner: "A multiplayer party game, built two-person with a protected-main PR workflow.",
     description:
-      "Parses Claude Code transcripts and git history across every project, ranks the week's work by how much human steering it needed, condenses ~100 MB of raw transcripts into a ~2 KB digest, then generates a publication-ready article via the Anthropic API. Unattended weekly build and deploy, with secret and PII redaction at render time.",
-    status: "Automated weekly build via scheduled job",
-    tech: ["Python", "Anthropic SDK", "matplotlib"],
-    numbers: ["~100 MB transcripts to ~2 KB digest per issue"],
-    tags: ["agentic-ai", "automated"],
-  },
-  {
-    slug: "frm-study",
-    name: "FRM Level 1 study system",
-    oneLiner: "AI-assisted exam-prep platform with spaced repetition.",
-    description:
-      "Question bank with exam-weighted sampling, FSRS-4.5 spaced repetition, interleaved sessions, and timed mocks. Built and maintained with Claude Code across parallel git worktrees.",
-    status: "Live on GitHub Pages",
-    tech: ["Python", "Jinja2", "JavaScript", "GitHub Pages"],
-    numbers: ["228 questions"],
-    tags: ["web", "live"],
-    url: "https://ericbackman.github.io/frm_level1",
-  },
-  {
-    slug: "discord-bots",
-    name: "Discord bot fleet",
-    oneLiner: "A template Worker bot cloned into 5 live prediction and clan bots.",
-    description:
-      "A canonical Discord bot on Cloudflare Workers (picks-worker) serves as the template brick for sumo, F1, and game-clan bots. Fixes land at the canonical home first, then sweep the clones, each of which carries a birthmark comment naming its source.",
-    status: "Live bots on Cloudflare Workers",
-    tech: ["TypeScript", "Cloudflare Workers", "Discord API"],
-    numbers: ["5 bots from 1 canonical template"],
-    tags: ["web", "live", "automated"],
-  },
-  {
-    slug: "upload-calendar",
-    name: "Upload calendar",
-    oneLiner: "Live dashboard of both YouTube channels' upcoming publish schedule.",
-    description:
-      "A daily job rebuilds the schedule from the live YouTube API for two channels and redeploys a static schedule page.",
-    status: "Live at schedule.ericbackman.com, refreshed daily",
-    tech: ["Python", "YouTube Data API", "Cloudflare"],
-    numbers: ["2 channels"],
-    tags: ["automated", "live"],
-    url: "https://schedule.ericbackman.com",
+      "Friends bet sportsbook-style on mini-games they play against each other. Unity with host-authoritative netcode over Unity Relay. Built with a friend partly to run a real team git workflow: main is protected, every change needs a PR, an approval, and a green test check.",
+    status: "In development, public repo, CI green",
+    tech: ["Unity", "C#", "Netcode for GameObjects", "GitHub Actions CI"],
+    numbers: ["28 unit tests on the core betting logic"],
+    tags: ["web"],
+    url: "https://github.com/ericbackman/side-bet",
   },
 ];
 
 export const WORKSPACE = {
-  headline: "A 72-repository agentic workspace where Claude Code operates with real responsibility behind engineered guardrails.",
+  headline:
+    "A 72-repository agentic workspace where Claude Code operates with real responsibility behind engineered guardrails.",
   stats: [
     "72 git repositories, 753 commits in the first 7 months of 2026",
+    "26 live subdomains under ericbackman.com (this server is the newest)",
+    "289 logged agent sessions across 39 projects: 25,610 tool calls, 5,427 files changed, every session trust-scored",
     "13 custom subagents with narrow jobs and scoped tools",
     "197 memory files across 16 projects, carrying corrections between sessions",
     "17 operational playbooks, one per live system",
     "12 scheduled jobs routed through one retry/log/alert wrapper",
+    "4 MCP servers built: YouTube operations, sports databases, personal data platform, and this resume",
   ],
   principles: [
     "Silent wrong behavior is the enemy: secrets fail loudly, every external call gets a timeout and retry, no bare exception handlers, no fallback defaults that hide the real error.",
@@ -185,6 +233,7 @@ export const WORKSPACE = {
     "Rule of two: the second time a pattern is built in a different repo, it is promoted to one canonical home with a tracked consumer list. Clones carry a birthmark comment naming their source.",
     "Auto-commit hooks stage tracked files only, so a stray secret can never land in git. A leak scanner runs before every commit.",
     "Trust is measured, not assumed: a dashboard scores each session 0-100 on how far it ran unattended, and a needed human correction caps it at 60.",
+    "Numbers come from data files, not READMEs: READMEs drift, data doesn't.",
   ],
 };
 
@@ -256,8 +305,8 @@ export const SKILLS = {
     "MCP: server design and tool interfaces (FastMCP, and this hand-rolled server)",
     "Multi-agent orchestration with human-review gates",
   ],
-  data: ["BigQuery", "Apache Beam / Dataflow", "Airflow", "PostgreSQL", "SQLite", "Docker", "pandas"],
-  cloud: ["GCP (Cloud Functions, Pub/Sub, Cloud Storage)", "Cloudflare (Workers, Pages, Access, D1)"],
+  data: ["BigQuery", "Apache Beam / Dataflow", "Airflow", "PostgreSQL", "SQLite", "DuckDB", "Docker", "pandas"],
+  cloud: ["GCP (Cloud Functions, Pub/Sub, Cloud Storage)", "Cloudflare (Workers, Pages, Access, D1, Durable Objects)"],
   domain: ["FRTB SA, VaR, CCR, Basel III / OSFI CAR", "FHIR healthcare interoperability", "IoT sensor validation"],
 };
 
