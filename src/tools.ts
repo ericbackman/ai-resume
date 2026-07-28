@@ -33,6 +33,16 @@ function formatProjectFull(p: Project): string {
   ];
   if (p.numbers.length > 0) lines.push(`- **Numbers:** ${p.numbers.join("; ")}`);
   if (p.url) lines.push(`- **URL:** ${p.url}`);
+  if (p.parts !== undefined && p.parts.length > 0) {
+    lines.push("", "**Components:**");
+    for (const part of p.parts) {
+      lines.push(`- **${part.name}:** ${part.note}${part.url === undefined ? "" : ` <${part.url}>`}`);
+    }
+  }
+  if (p.detail !== undefined && p.detail.length > 0) {
+    lines.push("", "**Worth knowing:**");
+    for (const d of p.detail) lines.push(`- ${d}`);
+  }
   return lines.join("\n");
 }
 

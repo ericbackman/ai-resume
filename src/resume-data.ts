@@ -16,6 +16,12 @@ export const PROFILE = {
     "Data engineer and applied AI builder in Toronto. At BMO he builds the data platform and multi-agent LLM pipelines behind FRTB regulatory capital investigations. At home he runs a 72-repository agentic workspace where Claude Code operates with real responsibility behind engineered guardrails: memory, review gates, playbooks, and a session-level trust score. This server is itself one of his projects.",
 };
 
+export interface Part {
+  name: string;
+  note: string;
+  url?: string;
+}
+
 export interface Project {
   slug: string;
   name: string;
@@ -26,6 +32,10 @@ export interface Project {
   numbers: string[];
   tags: string[];
   url?: string;
+  /** Subprojects / components, shown on the landing map and in get_project. */
+  parts?: Part[];
+  /** Extra depth for get_project beyond the description. */
+  detail?: string[];
 }
 
 // Curated to the most complete systems, verified against their own data files.
@@ -55,6 +65,19 @@ export const PROJECTS: Project[] = [
     numbers: ["111 videos uploaded", "74 Shorts public", "217-entry publish queue", "308 source clips catalogued"],
     tags: ["agentic-ai", "automated", "live"],
     url: "https://youtube.com/@backmandiving",
+    parts: [
+      { name: "researcher", note: "finds the story by querying real data, never scraping claims" },
+      { name: "storyboarder", note: "turns a research brief into beats and a chapter-to-visual map" },
+      { name: "visuals scout", note: "sources license-cleared imagery, fail-closed on provenance" },
+      { name: "editor", note: "renders Shorts and long-form comps with ffmpeg" },
+      { name: "adversarial reviewer", note: "tries to refute every script before render" },
+      { name: "channel manager", note: "weekly loop: diagnose, prep the next video, hand Eric one decision" },
+    ],
+    detail: [
+      "5 scheduled jobs run the pipeline: pre-render 07:00, upload 08:30, analytics monitor 09:00, weekly publish-drip scheduling, and a Sunday channel-manager checkpoint.",
+      "Formats are greenlit on data: a 64-minute sleep-video pilot earned 19.6 watch-hours against 5.6 and 1.3 for its comparables, so the format shipped.",
+      "The human gate is structural: scheduled jobs upload as private only. Nothing goes public without Eric's review.",
+    ],
   },
   {
     slug: "agent-audit",
@@ -71,6 +94,11 @@ export const PROJECTS: Project[] = [
     ],
     tags: ["agentic-ai", "live", "automated"],
     url: "https://loop.ericbackman.com",
+    detail: [
+      "Data source is a deterministic global Stop hook that appends one JSON line per session; the dashboard is a tested stdlib-Python build over that log.",
+      "The rubric is versioned (v1-hardcap) so scores stay comparable as it evolves.",
+      "Built explicitly to speed up the generation-to-verification loop, the slowest axis of running agents with real responsibility.",
+    ],
   },
   {
     slug: "paper-trader",
@@ -83,6 +111,10 @@ export const PROJECTS: Project[] = [
     numbers: ["90-day public decision log"],
     tags: ["agentic-ai", "automated", "live"],
     url: "https://trader.ericbackman.com",
+    parts: [
+      { name: "trading engine", note: "Python session runner: portfolio review, trade placement, written reasoning" },
+      { name: "report worker", note: "TypeScript Worker + D1; token-gated write path, public read path" },
+    ],
   },
   {
     slug: "video-essays",
@@ -94,6 +126,15 @@ export const PROJECTS: Project[] = [
     tech: ["Python", "ffmpeg", "Pillow", "Kokoro TTS (self-hosted)", "Claude Opus", "adversarial review agents"],
     numbers: ["every on-screen number traces to a data row", "majors history to 1960"],
     tags: ["agentic-ai", "data"],
+    parts: [
+      { name: "claim engine", note: "locks the script to a verified data payload; a deterministic audit catches any stray number" },
+      { name: "adversarial review", note: "multi-agent pass that tries to refute the script on craft, fact, and engagement" },
+      { name: "self-hosted voice", note: "Kokoro TTS on the home server, so re-rendering costs nothing" },
+      { name: "chart renderer", note: "Pillow-drawn charts, every figure from the same claim payload" },
+    ],
+    detail: [
+      "Clean engine/adapter split: the engine (script, narration, TTS, render, imagery, compose) is topic-agnostic; a ~2-file adapter maps a new dataset to claims and beats. A second adapter already exists in the tree.",
+    ],
   },
   {
     slug: "askviz",
@@ -105,6 +146,10 @@ export const PROJECTS: Project[] = [
     tech: ["TypeScript", "Cloudflare Workers", "Claude API", "Vega-Lite", "PWA"],
     numbers: ["19 passing tests", "~20 KB gzipped bundle"],
     tags: ["agentic-ai", "data"],
+    detail: [
+      "Division of labor is the design: the model chooses grouping and axes, TypeScript computes every figure. Chart wrong at worst, number never wrong.",
+      "Ships an offline planner covering common questions, so the app works with no API key at all.",
+    ],
   },
   {
     slug: "data-explorer",
@@ -116,6 +161,18 @@ export const PROJECTS: Project[] = [
     tech: ["Python", "SQLite", "MCP server", "nba_api", "nflverse"],
     numbers: ["7M-row golf holes table", "NBA box scores 1946-present", "NFL 1999-present", "NHL 1997-present"],
     tags: ["data", "agentic-ai"],
+    parts: [
+      { name: "NBA", note: "box scores 1946-present via nba_api" },
+      { name: "NFL", note: "1999-present via nflverse" },
+      { name: "NHL", note: "game index 1997-present from the official API" },
+      { name: "Golf", note: "every PGA Tour event 2005-2026, majors to 1960, 7M-row holes table" },
+      { name: "sports-data MCP server", note: "read-only list_databases / describe_schema / run_sql for any Claude surface" },
+      { name: "sports-crons", note: "the write path: daily containerized ingestion on the home server, the only writer to the DBs" },
+    ],
+    detail: [
+      "Read path and write path are separate repos on purpose: the ingestion container is the only writer, everything else queries read-only.",
+      "Answers are validated against a known fact before they're trusted; the convention is documented per sport.",
+    ],
   },
   {
     slug: "job-hunt",
@@ -127,6 +184,14 @@ export const PROJECTS: Project[] = [
     tech: ["Node.js", "Claude subagents", "ATS JSON APIs", "Gmail"],
     numbers: ["23 job boards swept daily", "4 purpose-built subagents"],
     tags: ["agentic-ai", "automated"],
+    parts: [
+      { name: "role-scout", note: "sources roles and live-verifies each posting against the ATS JSON API" },
+      { name: "tracker-reconciler", note: "reads Gmail, classifies confirmations and rejections, keeps the tracker honest" },
+      { name: "resume-tailor", note: "re-angles bullets to what a role actually screens for" },
+      { name: "voice-ats-reviewer", note: "fresh-context gate: voice + ATS check before any PDF renders" },
+      { name: "daily-jobs-watch", note: "9:01 sweep of 23 boards, diffing on stable ATS posting ids" },
+      { name: "liveness watchdog", note: "independent daily check that alerts if the sweep itself goes stale" },
+    ],
   },
   {
     slug: "newsletter",
@@ -139,6 +204,10 @@ export const PROJECTS: Project[] = [
     numbers: ["7 published issues", "~100 MB of transcripts condensed to ~2 KB per issue"],
     tags: ["agentic-ai", "automated", "live"],
     url: "https://rickleberry.ericbackman.com",
+    detail: [
+      "Ranking is by human steering, not output volume: interventions outweigh commits, commits outweigh ships. The interesting work is where Eric had to step in.",
+      "A shared redaction module scrubs secrets and PII at render time before anything publishes.",
+    ],
   },
   {
     slug: "frm-study",
@@ -175,6 +244,11 @@ export const PROJECTS: Project[] = [
     numbers: ["500-grid simulated difficulty contract", "3 sport variants from 1 template"],
     tags: ["web", "live"],
     url: "https://15.ericbackman.com",
+    parts: [
+      { name: "NBA", note: "the original: 4 boss teams, transparent win model shown in-game", url: "https://15.ericbackman.com" },
+      { name: "MLB", note: "Perfect October variant", url: "https://october.ericbackman.com" },
+      { name: "NHL", note: "Perfect Spring variant", url: "https://cup.ericbackman.com" },
+    ],
   },
   {
     slug: "discord-bots",
@@ -187,6 +261,16 @@ export const PROJECTS: Project[] = [
     numbers: ["5 bots from 1 canonical template"],
     tags: ["web", "live", "automated"],
     url: "https://github.com/ericbackman/osrs-clan-bot",
+    parts: [
+      { name: "picks-worker", note: "the canonical template: daily NBA/NHL/MLB/NFL picks league with tap-to-pick buttons" },
+      { name: "sumo-picks", note: "honbasho league; picks lock at 15:45 JST, upsets score extra" },
+      { name: "f1-picks", note: "Grand Prix weekend markets: pole, Q1 casualty, ordered podium with partial credit" },
+      { name: "osrs-clan-bot", note: "clan XP/boss/drop race tracker, public repo", url: "https://github.com/ericbackman/osrs-clan-bot" },
+      { name: "wow-clan-bot", note: "WoW clan variant" },
+    ],
+    detail: [
+      "The reuse discipline is the point: a fix to the shared REST layer landed at the canonical home and was swept to every clone in one audited pass, catching two bots whose error handling had silently drifted.",
+    ],
   },
   {
     slug: "life-tracker",
