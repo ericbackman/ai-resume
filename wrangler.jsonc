@@ -4,6 +4,10 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-07-28",
   "compatibility_flags": ["nodejs_compat"],
-  "routes": [{ "pattern": "ai.ericbackman.com", "custom_domain": true }],
+  "routes": [
+    { "pattern": "ericbackman.com", "custom_domain": true },
+    { "pattern": "www.ericbackman.com", "custom_domain": true },
+    { "pattern": "ai.ericbackman.com", "custom_domain": true }
+  ],
   "observability": { "enabled": true, "head_sampling_rate": 1 }
 }

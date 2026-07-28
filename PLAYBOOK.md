@@ -1,7 +1,12 @@
-# PLAYBOOK — ai.ericbackman.com (AI-native resume)
+# PLAYBOOK — ericbackman.com (AI-native resume)
 
-**System:** Cloudflare Worker `ai-resume`, custom domain ai.ericbackman.com.
-Stateless, read-only, no bindings, no secrets, no scheduled jobs.
+**System:** Cloudflare Worker `ai-resume`, custom domains **ericbackman.com**
+(the apex — this IS Eric's homepage since 2026-07-28), www.ericbackman.com
+(301 → apex, handled in the worker), and ai.ericbackman.com (the advertised
+MCP connector URL). Stateless, read-only, no bindings, no secrets, no
+scheduled jobs. The previous portfolio (Pages project `portfolio-94i`, repo
+ericbackman.github.io) was detached from the apex but still exists at
+portfolio-94i.pages.dev; its GitHub Actions deploy still runs harmlessly.
 **Stakes:** public portfolio surface for Eric's job search. Wrong facts or
 downtime in front of a recruiter is the failure mode; nothing here can lose data.
 

@@ -259,7 +259,7 @@ export const LANDING_HTML = `<!doctype html>
 <body>
 <main>
   <header>
-    <div class="eyebrow">ai.ericbackman.com — an AI-native resume</div>
+    <div class="eyebrow">an AI-native resume</div>
     <h1>${escapeHtml(PROFILE.name)}</h1>
     <div class="sub">${escapeHtml(PROFILE.title)} · ${escapeHtml(PROFILE.location)}</div>
     <p class="lede">${escapeHtml(META.why)}</p>

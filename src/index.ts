@@ -52,6 +52,11 @@ export default {
     try {
       const url = new URL(request.url);
 
+      if (url.hostname === "www.ericbackman.com") {
+        url.hostname = "ericbackman.com";
+        return Response.redirect(url.toString(), 301);
+      }
+
       if (request.method === "OPTIONS") {
         return withCors(new Response(null, { status: 204 }));
       }

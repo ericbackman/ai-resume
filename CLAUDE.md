@@ -1,8 +1,9 @@
 # ai-resume — AI-native resume MCP server
 
-Live at **ai.ericbackman.com** (Cloudflare Worker, custom domain). Release-grade,
-public, portfolio-facing: full STANDARDS.md bar applies. Read PLAYBOOK.md before
-operating or debugging the live worker.
+Live at **ericbackman.com** (the apex — Eric's homepage), plus www (301 → apex)
+and **ai.ericbackman.com** (the advertised MCP connector URL). Public GitHub
+repo. Release-grade, portfolio-facing: full STANDARDS.md bar applies. Read
+PLAYBOOK.md before operating or debugging the live worker.
 
 ## What lives where
 
