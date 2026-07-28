@@ -3,7 +3,7 @@
 // drift. Client JS builds DOM via createElement/textContent only — no
 // innerHTML with dynamic content, matching the workspace house rule.
 
-import { PROFILE, META, PROJECTS, WORKSPACE, type Project } from "./resume-data";
+import { PROFILE, META, PROJECTS, WORKSPACE, FEATURED_VIDEOS, type Project } from "./resume-data";
 import { buildServerSpec } from "./tools";
 
 const MCP_URL = "https://ai.ericbackman.com/mcp";
@@ -91,6 +91,16 @@ const filterChipsHtml = FILTERS.map(
 ).join("\n");
 
 const cardsHtml = PROJECTS.map(projectCardHtml).join("\n");
+
+const videoWallHtml = FEATURED_VIDEOS.map((v) => {
+  const href =
+    v.kind === "short" ? `https://www.youtube.com/shorts/${v.id}` : `https://www.youtube.com/watch?v=${v.id}`;
+  return `<a class="vid ${v.kind === "short" ? "vid-short" : "vid-wide"}" href="${escapeHtml(href)}" target="_blank" rel="noopener" aria-label="Watch on YouTube: ${escapeHtml(v.title)}">
+  <img src="https://i.ytimg.com/vi/${escapeHtml(v.id)}/maxresdefault.jpg" alt="" loading="lazy">
+  <span class="vid-play" aria-hidden="true">▶</span>
+  <span class="vid-title">${escapeHtml(v.title)}</span>
+</a>`;
+}).join("\n");
 
 // ---- the page -------------------------------------------------------------
 
@@ -197,6 +207,36 @@ export const LANDING_HTML = `<!doctype html>
   .status-complete .dot { background:var(--muted); }
   @keyframes pulse { 50% { opacity:.45; } }
 
+  /* video wall */
+  .vid-wall { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; }
+  .vid {
+    position:relative; display:block; border-radius:12px; overflow:hidden;
+    border:1px solid var(--border); background:var(--panel);
+  }
+  .vid:hover { border-color:var(--border-glow); }
+  .vid img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .3s ease; }
+  .vid:hover img { transform:scale(1.05); }
+  .vid-short { aspect-ratio:9/16; }
+  .vid-wide { grid-column:1/-1; aspect-ratio:21/9; }
+  .vid-play {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:rgba(10,14,20,.62); border:1px solid rgba(230,237,243,.45); color:#fff; font-size:16px;
+    padding-left:4px; transition:background .2s ease;
+  }
+  .vid:hover .vid-play { background:rgba(88,166,255,.75); }
+  .vid-title {
+    position:absolute; left:0; right:0; bottom:0; padding:26px 10px 9px; font-size:12px; color:#fff;
+    background:linear-gradient(transparent, rgba(4,8,14,.85));
+  }
+  @media (max-width:640px) {
+    .vid-wall { grid-template-columns:repeat(2, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vid img { transition:none; }
+    .vid:hover img { transform:none; }
+  }
+
   /* connect */
   pre {
     background:var(--panel); border:1px solid var(--border); border-radius:10px;
@@ -242,6 +282,15 @@ ${statTilesHtml}
 ${toolChipsHtml}
       </div>
     </div>
+  </section>
+
+  <section id="watch">
+    <h2><span class="hash">#</span>Watch the output</h2>
+    <p class="section-note">Live from the channel the Dive Shorts studio runs. Eric shot every frame; Claude reviewed the footage, cut and color-corrected each video, uploaded it, and scheduled its release. Tap to watch on YouTube.</p>
+    <div class="vid-wall">
+${videoWallHtml}
+    </div>
+    <p class="section-note" style="margin-top:10px">More at <a href="https://youtube.com/@backmandiving" target="_blank" rel="noopener">@backmandiving</a> — 111 videos uploaded by the pipeline so far.</p>
   </section>
 
   <section id="system">

@@ -89,7 +89,7 @@ describe("tools", () => {
   });
 
   it("get_project fuzzy-matches names", () => {
-    const result = resultOf(call("tools/call", { name: "get_project", arguments: { name: "Dive" } }));
+    const result = resultOf(call("tools/call", { name: "get_project", arguments: { name: "dive map" } }));
     const content = result["content"] as Array<Record<string, unknown>>;
     expect(content[0]!["text"]).toContain("147 dives");
   });

@@ -56,22 +56,22 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: "content-studio",
-    name: "YouTube content studio",
-    oneLiner: "A 6-agent studio that produces and schedules a real YouTube channel.",
+    name: "Dive Shorts studio (YouTube)",
+    oneLiner: "Tools that let Claude turn a pile of raw dive footage into a running YouTube channel.",
     description:
-      "Agents research, storyboard, source license-cleared imagery, and render scuba-diving videos: raw 4K footage in, color-corrected 9:16 Shorts and long-form ambient comps out, uploaded and scheduled through the YouTube API. An adversarial reviewer agent tries to refute every script. Daily scheduled jobs render, upload as private, and monitor analytics; a weekly channel-manager loop diagnoses performance and hands Eric exactly one decision. Nothing publishes without his review.",
+      "Claude takes Eric's raw 4K scuba footage and does the rest: reviews the clip library, defines each cut, color-corrects and reframes to a 9:16 Short in one ffmpeg pass, writes the title, uploads as private, and schedules the publish drip. Daily jobs keep the queue moving; a weekly channel-manager loop reads the analytics and preps what's next. Eric dives and approves. Long-form ambient videos ship through the same tools, with a 6-agent research, storyboard, and review crew behind the narrated ones.",
     status: "Live channel (youtube.com/@backmandiving), 5 scheduled jobs",
     tech: ["Python (stdlib render pipeline)", "ffmpeg", "YouTube Data + Analytics APIs", "Claude subagents"],
     numbers: ["111 videos uploaded", "74 Shorts public", "217-entry publish queue", "308 source clips catalogued"],
     tags: ["agentic-ai", "automated", "live"],
     url: "https://youtube.com/@backmandiving",
     parts: [
-      { name: "researcher", note: "finds the story by querying real data, never scraping claims" },
-      { name: "storyboarder", note: "turns a research brief into beats and a chapter-to-visual map" },
-      { name: "visuals scout", note: "sources license-cleared imagery, fail-closed on provenance" },
-      { name: "editor", note: "renders Shorts and long-form comps with ffmpeg" },
-      { name: "adversarial reviewer", note: "tries to refute every script before render" },
-      { name: "channel manager", note: "weekly loop: diagnose, prep the next video, hand Eric one decision" },
+      { name: "footage intake", note: "catalogues the 4K clip library (308 clips) and defines each Short's cut" },
+      { name: "editor", note: "trim, underwater color correction, 9:16 reframe, text overlays, one ffmpeg pass" },
+      { name: "upload & schedule", note: "uploads as private, then drips publishes on a schedule" },
+      { name: "analytics monitor", note: "daily velocity and playlist checks, flags feed misses" },
+      { name: "long-form crew", note: "6 agents (research, storyboard, visuals, edit, adversarial review, management) for narrated long-form" },
+      { name: "channel manager", note: "weekly loop: diagnose retention, prep the next video, hand Eric one decision" },
     ],
     detail: [
       "5 scheduled jobs run the pipeline: pre-render 07:00, upload 08:30, analytics monitor 09:00, weekly publish-drip scheduling, and a Sunday channel-manager checkpoint.",
@@ -402,9 +402,20 @@ export const GAPS = [
   "Formal data-science job tenure is about 2 years (Ecobee + BMO), alongside the 3-year independent lab.",
 ];
 
+// Featured on the landing page. All shot by Eric, all cut/uploaded/scheduled
+// by the studio pipeline. Thumbnails come from i.ytimg.com; tiles link out
+// (embedding is currently disabled channel-wide on upload).
+export const FEATURED_VIDEOS: Array<{ id: string; title: string; kind: "short" | "video" }> = [
+  { id: "H4rfOjeriYw", title: "A reef shark on patrol", kind: "short" },
+  { id: "rQEQ_G0qAZs", title: "The pod just kept coming", kind: "short" },
+  { id: "TeZknVfAYkw", title: "Gliding with a manta ray", kind: "short" },
+  { id: "Y-ruH0Ox7-k", title: "A wall of barracuda", kind: "short" },
+  { id: "6OzOIoT4ewA", title: "Swimming with dolphins in 4K", kind: "video" },
+];
+
 export const META = {
   what: "This server is Eric's resume, published as a Model Context Protocol server so AI assistants can query it directly.",
-  why: "Every resume now says 'experienced with AI agents.' Eric's evidence is structural: the resume itself is served by an MCP server he built, its narrative was written by the AI he works with daily, and every number in it was pulled from the workspace it describes.",
+  why: "A resume can claim anything. This one is built as evidence: it is served by an MCP server Eric built, its narrative was written by the AI he works with every day, and every number in it was pulled from the workspace it describes.",
   how: "Hand-rolled JSON-RPC over Streamable HTTP on a Cloudflare Worker. No runtime dependencies. Stateless. The content lives in one typed data module.",
   written: "2026-07-28",
 };

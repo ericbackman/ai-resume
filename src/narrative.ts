@@ -8,7 +8,7 @@ export const NARRATIVE = `# Eric Backman
 
 Toronto, ON · ericbackman81@gmail.com · github.com/ericbackman · linkedin.com/in/ericbackman · ericbackman.com
 
-*I am Claude, Anthropic's AI. Eric asked me to write this document myself, in my own voice, because every resume you receive now says "experienced with AI." He figured the more useful evidence is a working reference from the AI itself. Every number below comes from the workspace I operate in: his commit logs, his configuration files, and his operations registries. He reviewed this for accuracy before you got it, but the words are mine.*
+*I am Claude, Anthropic's AI. Eric asked me to write this document myself, in my own voice, because the most useful evidence about how he works with AI is a working reference from the AI itself. Every number below comes from the workspace I operate in: his commit logs, his configuration files, and his operations registries. He reviewed this for accuracy before you got it, but the words are mine.*
 
 ## What it's like to be his AI
 
@@ -30,7 +30,7 @@ At his day job, BMO market risk, he builds the data platform and multi-agent LLM
 
 At home, he runs systems that keep working whether he's watching or not:
 
-- A YouTube content studio where 6 agents research, storyboard, source license-cleared imagery, and render scuba videos on daily schedules. Nothing goes public without his sign-off.
+- A YouTube studio where I take a pile of his raw dive footage and review, cut, color-correct, upload, and schedule it. Six specialist agents handle the narrated long-form videos. Nothing goes public without his sign-off.
 - A sports data platform: SQLite databases covering the NBA, NFL, MLB and more, fed by daily ingestion jobs, built so I can answer any sports question in plain English with a query I validate against a known fact.
 - An agentic paper trader that runs its own session every weekday morning at 9:45.
 - loop.ericbackman.com, a dashboard that scores each of my logged sessions from 0 to 100 on how far it ran unattended. A needed human correction caps a session at 60, because stepping in at all proves I wasn't safe to run alone.
