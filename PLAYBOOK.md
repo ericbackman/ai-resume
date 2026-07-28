@@ -41,6 +41,12 @@ npx wrangler rollback        # interactive: pick the previous deployment
   required by `typecheck`. If tsc complains about missing Env types, run it.
 - Custom-domain DNS is managed by the `custom_domain: true` route in
   wrangler.jsonc. Do not hand-create DNS records for `ai` in the zone.
+- Cloudflare Bot Fight Mode on the zone 403s Python clients that send the
+  stock `Python-urllib/x.y` user-agent (verified 2026-07-28). curl, Node
+  (undici — Claude Code's MCP client), and any client with a custom UA pass.
+  If a recruiter reports their AI can't connect, this is the first suspect.
+  Turning BFM off is a zone-level security decision — Eric's call, and it
+  affects every other subdomain on the zone.
 
 ## Escalation
 
