@@ -3,8 +3,8 @@
 // drift. Client JS builds DOM via createElement/textContent only — no
 // innerHTML with dynamic content, matching the workspace house rule.
 
-import { PROFILE, META, PROJECTS, WORKSPACE, FEATURED_VIDEOS, type Project } from "./resume-data";
-import { buildServerSpec } from "./tools";
+import { PROFILE, META, PROJECTS, WORKSPACE, FEATURED_VIDEOS, TIMELINE, TIMELINE_INTRO, type Project } from "./resume-data";
+import { buildServerSpec, shortDate } from "./tools";
 
 const MCP_URL = "https://ai.ericbackman.com/mcp";
 
@@ -91,6 +91,72 @@ const filterChipsHtml = FILTERS.map(
 ).join("\n");
 
 const cardsHtml = PROJECTS.map(projectCardHtml).join("\n");
+
+// ---- timeline SVG (dark, JetBrains Mono, generated from TIMELINE) --------
+
+const TL_COLORS: Record<string, string> = {
+  sports: "#2dd4a7",
+  dive: "#58a6ff",
+  bots: "#f778ba",
+  cloudflare: "#f0883e",
+  photos: "#8b949e",
+  agents: "#bc8cff",
+  jobhunt: "#ff7b72",
+};
+
+const TL_X0 = 150;
+const TL_X1 = 960;
+const TL_EPOCH = Date.UTC(2026, 1, 1); // Feb 1, 2026
+const TL_SPAN_DAYS = 181; // Feb 1 -> Aug 1
+
+function tlX(iso: string): number {
+  const [y, m, d] = iso.split("-").map(Number);
+  const days = (Date.UTC(y ?? 2026, (m ?? 1) - 1, d ?? 1) - TL_EPOCH) / 86400000;
+  return Math.round(TL_X0 + (days * (TL_X1 - TL_X0)) / TL_SPAN_DAYS);
+}
+
+function buildTimelineSvg(): string {
+  const laneTop = 110;
+  const pitch = 96;
+  const bottom = laneTop + (TIMELINE.length - 1) * pitch + 44;
+  const height = bottom + 20;
+  const parts: string[] = [];
+  parts.push(
+    `<svg viewBox="0 0 1000 ${height}" role="img" aria-label="Seven-track timeline, February to July 2026" style="min-width:920px;display:block;width:100%">`,
+  );
+  for (let m = 1; m <= 7; m++) {
+    const x = tlX(`2026-0${m + 1}-01`);
+    const label = ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"][m - 1];
+    parts.push(
+      `<line x1="${x}" y1="72" x2="${x}" y2="${bottom}" stroke="#30363d" stroke-width="1" stroke-dasharray="2,5"/>`,
+      `<text x="${x}" y="58" font-size="12" fill="#8b949e" text-anchor="middle">${label}</text>`,
+    );
+  }
+  TIMELINE.forEach((track, i) => {
+    const y = laneTop + i * pitch;
+    const color = TL_COLORS[track.key] ?? "#8b949e";
+    parts.push(
+      `<text x="10" y="${y + 4}" font-size="14" font-weight="700" fill="${color}">${escapeHtml(track.name)}</text>`,
+      `<line x1="${TL_X0}" y1="${y}" x2="${TL_X1}" y2="${y}" stroke="${color}" stroke-width="1" opacity="0.5"/>`,
+    );
+    for (const e of track.events) {
+      const x = tlX(e.date);
+      const labelY = e.row === "above" ? y - 16 : e.row === "below" ? y + 24 : y + 40;
+      const anchor = e.anchor === "end" ? `x="${TL_X1}" text-anchor="end"` : `x="${x}" text-anchor="middle"`;
+      parts.push(`<circle cx="${x}" cy="${y}" r="4.5" fill="${color}"/>`);
+      if (e.row === "below2") {
+        parts.push(`<line x1="${x}" y1="${y + 6}" x2="${x}" y2="${labelY - 10}" stroke="#484f58" stroke-width="1" stroke-dasharray="2,3"/>`);
+      }
+      parts.push(
+        `<text ${anchor} y="${labelY}" font-size="12" fill="#e6edf3">${escapeHtml(e.label)} <tspan fill="#8b949e">· ${escapeHtml(shortDate(e.date))}</tspan></text>`,
+      );
+    }
+  });
+  parts.push("</svg>");
+  return parts.join("\n");
+}
+
+const timelineSvg = buildTimelineSvg();
 
 const videoWallHtml = FEATURED_VIDEOS.map((v) => {
   const href =
@@ -207,6 +273,13 @@ export const LANDING_HTML = `<!doctype html>
   .status-complete .dot { background:var(--muted); }
   @keyframes pulse { 50% { opacity:.45; } }
 
+  /* timeline */
+  .tl-wrap {
+    overflow-x:auto; background:var(--panel); border:1px solid var(--border);
+    border-radius:12px; padding:16px 8px;
+  }
+  .tl-wrap svg text { font-family:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
   /* video wall */
   .vid-wall { display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; }
   .vid {
@@ -291,6 +364,14 @@ ${toolChipsHtml}
 ${videoWallHtml}
     </div>
     <p class="section-note" style="margin-top:10px">More at <a href="https://youtube.com/@backmandiving" target="_blank" rel="noopener">@backmandiving</a> — 111 videos uploaded by the pipeline so far.</p>
+  </section>
+
+  <section id="timeline">
+    <h2><span class="hash">#</span>155 days</h2>
+    <p class="section-note">${escapeHtml(TIMELINE_INTRO)} Seven tracks, each one a question that kept getting answered. Your AI can read the same story via the <code>get_timeline</code> tool.</p>
+    <div class="tl-wrap">
+${timelineSvg}
+    </div>
   </section>
 
   <section id="system">
@@ -462,7 +543,7 @@ ${PROFILE.summary}
 
 - MCP endpoint (Streamable HTTP, no auth, read-only): ${MCP_URL}
 - Full narrative resume (markdown): https://ai.ericbackman.com/resume.md
-- Start with the \`about\` tool, then \`get_resume\`, \`list_projects\`, \`get_project\`, \`get_bmo_work\`, \`get_workspace\`, \`get_skills_and_gaps\` (includes explicit gaps), \`get_contact\`.
+- Start with the \`about\` tool, then \`get_resume\`, \`list_projects\`, \`get_project\`, \`get_timeline\`, \`get_bmo_work\`, \`get_workspace\`, \`get_skills_and_gaps\` (includes explicit gaps), \`get_contact\`.
 
 ## Contact
 

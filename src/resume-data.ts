@@ -50,7 +50,7 @@ export const PROJECTS: Project[] = [
       "A dependency-free Model Context Protocol server on a Cloudflare Worker. Serves Eric's resume as structured tools any AI assistant can call, plus a human landing page and llms.txt. The narrative resume it serves was written by Claude from inside Eric's workspace. It is the 4th MCP server he has built (after YouTube operations, the sports data platform, and his personal data platform).",
     status: "Live at ai.ericbackman.com",
     tech: ["TypeScript", "Cloudflare Workers", "MCP (Streamable HTTP)"],
-    numbers: ["0 runtime dependencies", "9 tools", "14 unit tests"],
+    numbers: ["0 runtime dependencies", "10 tools", "14 unit tests"],
     tags: ["agentic-ai", "live"],
     url: "https://ai.ericbackman.com",
   },
@@ -402,6 +402,102 @@ export const GAPS = [
   "He hasn't fine-tuned models; his work is orchestration, evaluation, and productionizing, not training.",
   "Formal data-science job tenure is about 2 years (Ecobee + BMO), alongside the 3-year independent lab.",
 ];
+
+// The 7-track timeline. Dates are git first-commits (verified 2026-07-29);
+// layout hints (row/anchor) are hand-placed to avoid label collisions in the
+// landing-page SVG. get_timeline serves the same data as text.
+export interface TimelineEvent {
+  date: string;
+  label: string;
+  row: "above" | "below" | "below2";
+  anchor?: "end";
+}
+
+export interface TimelineTrack {
+  key: string;
+  name: string;
+  question: string;
+  events: TimelineEvent[];
+}
+
+export const TIMELINE: TimelineTrack[] = [
+  {
+    key: "sports",
+    name: "Sports data",
+    question: "Can Claude answer a sports question from a real database?",
+    events: [
+      { date: "2026-02-23", label: "Sports DBs", row: "above" },
+      { date: "2026-05-10", label: "Bet tracker", row: "below" },
+      { date: "2026-06-28", label: "Paper trader", row: "above" },
+      { date: "2026-07-10", label: "Video essays", row: "below" },
+    ],
+  },
+  {
+    key: "dive",
+    name: "Dive footage",
+    question: "Can Claude edit dive footage? Find the good clips? Caption them? Post them?",
+    events: [
+      { date: "2026-05-22", label: "Dive map", row: "above" },
+      { date: "2026-06-05", label: "Shorts channel live", row: "below" },
+      { date: "2026-07-14", label: "Sleep format greenlit", row: "above", anchor: "end" },
+      { date: "2026-07-19", label: "Second channel", row: "below2", anchor: "end" },
+    ],
+  },
+  {
+    key: "bots",
+    name: "Discord bots",
+    question: "Can Claude resurrect a dead Discord music bot?",
+    events: [
+      { date: "2026-06-10", label: "Groovy reborn", row: "above" },
+      { date: "2026-06-12", label: "Picks league, first Worker", row: "below" },
+      { date: "2026-07-18", label: "5-bot fleet", row: "above", anchor: "end" },
+    ],
+  },
+  {
+    key: "cloudflare",
+    name: "Cloudflare",
+    question: "How much of the stack can move to the edge?",
+    events: [
+      { date: "2026-05-31", label: "First Pages sites", row: "above" },
+      { date: "2026-06-12", label: "First Worker + D1", row: "below" },
+      { date: "2026-06-28", label: "Durable Objects + Access", row: "below2" },
+      { date: "2026-07-28", label: "Worker apex", row: "above", anchor: "end" },
+    ],
+  },
+  {
+    key: "photos",
+    name: "Family photos",
+    question: "Can Gemini vision clean up 10 years of photo backups?",
+    events: [
+      { date: "2026-05-24", label: "Travels site", row: "above" },
+      { date: "2026-07-01", label: "Deduped library", row: "below" },
+      { date: "2026-07-02", label: "Photo map", row: "above", anchor: "end" },
+    ],
+  },
+  {
+    key: "agents",
+    name: "Agents & meta",
+    question: "Can I trust what Claude does unattended?",
+    events: [
+      { date: "2026-05-15", label: "Session logger", row: "above" },
+      { date: "2026-06-02", label: "Newsletter", row: "below" },
+      { date: "2026-07-01", label: "Trust dashboard", row: "above" },
+    ],
+  },
+  {
+    key: "jobhunt",
+    name: "Job hunt",
+    question: "Can the job search run as a system too?",
+    events: [
+      { date: "2026-05-08", label: "Job-hunt ops", row: "above" },
+      { date: "2026-06-27", label: "Rejection audit", row: "below" },
+      { date: "2026-07-28", label: "MCP resume live", row: "above", anchor: "end" },
+    ],
+  },
+];
+
+export const TIMELINE_INTRO =
+  "Outside a portfolio page from 2017 and one archived stats folder, every repository in the workspace has a first commit on or after 2026-02-23. First sports database to this server: 155 days.";
 
 // Featured on the landing page. All shot by Eric, all cut/uploaded/scheduled
 // by the studio pipeline. Thumbnails come from i.ytimg.com; tiles link out

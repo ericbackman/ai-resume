@@ -18,7 +18,7 @@ curl -s -X POST https://ai.ericbackman.com/mcp -H "Content-Type: application/jso
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
-Healthy = 200 with a `tools` array of 9 entries. Any 5xx: check
+Healthy = 200 with a `tools` array of 10 entries. Any 5xx: check
 Cloudflare dashboard → Workers → ai-resume → Logs (observability is enabled,
 head_sampling_rate 1).
 

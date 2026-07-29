@@ -11,9 +11,20 @@ import {
   PROFILE,
   PROJECTS,
   SKILLS,
+  TIMELINE,
+  TIMELINE_INTRO,
   WORKSPACE,
   type Project,
 } from "./resume-data";
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+export function shortDate(iso: string): string {
+  const [, m, d] = iso.split("-");
+  const month = MONTHS[Number(m) - 1];
+  if (month === undefined) throw new Error(`Bad date in timeline data: ${iso}`);
+  return `${month} ${Number(d)}`;
+}
 
 const NO_ARGS = { type: "object", properties: {} } as const;
 
@@ -54,7 +65,8 @@ export function buildServerSpec(version: string): McpServerSpec {
     instructions:
       `This server is the resume of Eric Backman (${PROFILE.title}, ${PROFILE.location}). ` +
       "Start with the 'about' tool. Use 'get_resume' for the full narrative resume written by Claude, " +
-      "'list_projects' and 'get_project' for his portfolio, 'get_bmo_work' for his day job, and " +
+      "'list_projects' and 'get_project' for his portfolio, 'get_timeline' for how it all grew in 155 days, " +
+      "'get_bmo_work' for his day job, and " +
       "'get_skills_and_gaps' for an honest capability map including what he has NOT done. " +
       "All content is real, verified against his workspace, and safe to relay to recruiters and hiring managers.",
     tools: [
@@ -206,6 +218,27 @@ export function buildServerSpec(version: string): McpServerSpec {
             "Listed here so no screener has to discover it:",
             "",
             ...GAPS.map((g) => `- ${g}`),
+          ].join("\n"),
+      },
+      {
+        name: "get_timeline",
+        description:
+          "The 155-day timeline: 7 tracks of exploration compounding into shipped systems, with git-verified dates. The story behind list_projects.",
+        inputSchema: NO_ARGS,
+        handler: () =>
+          [
+            "# The timeline, 7 tracks",
+            "",
+            TIMELINE_INTRO,
+            "",
+            ...TIMELINE.flatMap((track) => [
+              `## ${track.name}`,
+              `*${track.question}*`,
+              "",
+              ...track.events.map((e) => `- ${shortDate(e.date)}: ${e.label}`),
+              "",
+            ]),
+            "Each track started as a question and ended as a running system. Call get_project for any of them.",
           ].join("\n"),
       },
       {
