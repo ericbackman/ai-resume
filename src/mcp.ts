@@ -12,7 +12,11 @@ export interface ToolDef {
   annotations?: Record<string, unknown>;
 }
 
-export type ToolHandler = (args: Record<string, unknown>) => string;
+/** One MCP content block (text, image, ...) — shape owned by the tool. */
+export type ContentBlock = Record<string, unknown>;
+
+/** Tools return plain text, or full content blocks (e.g. an inline image). */
+export type ToolHandler = (args: Record<string, unknown>) => string | ContentBlock[];
 
 export interface McpServerSpec {
   name: string;
@@ -116,8 +120,9 @@ export function handleMessage(spec: McpServerSpec, raw: unknown): McpHttpResult 
         return rpcError(id, INVALID_PARAMS, `Unknown tool '${toolName}'. Available: ${known}`);
       }
       try {
-        const text = tool.handler(asRecord(params["arguments"]));
-        return rpcResult(id, { content: [{ type: "text", text }], isError: false });
+        const out = tool.handler(asRecord(params["arguments"]));
+        const content = typeof out === "string" ? [{ type: "text", text: out }] : out;
+        return rpcResult(id, { content, isError: false });
       } catch (err) {
         // Tool-level failures are results, not protocol errors, per the MCP spec.
         return rpcResult(id, {

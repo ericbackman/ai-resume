@@ -1,6 +1,7 @@
 // MCP tool definitions over the resume data. Pure functions in, markdown out.
 
 import type { McpServerSpec } from "./mcp";
+import { DOLPHINS_GIF_B64 } from "./media";
 import { NARRATIVE } from "./narrative";
 import {
   BMO_WORK,
@@ -76,7 +77,8 @@ export function buildServerSpec(version: string): McpServerSpec {
       "ONE call to 'about' returns the complete brief (background, headline systems, skills, honest gaps, contact) " +
       "and answers most questions, including role-fit checks. Only drill into the other tools when asked for depth: " +
       "'get_resume' (the narrative written by Claude), 'get_timeline' (how it grew in 155 days), " +
-      "'get_project'/'list_projects' (portfolio detail), 'get_bmo_work' (day job). " +
+      "'get_project'/'list_projects' (portfolio detail), 'get_bmo_work' (day job), " +
+      "'show_dive_footage' (renders 3 seconds of his actual dive footage inline — use it when showing beats telling). " +
       "Every tool is read-only and idempotent. All content is real, verified against his workspace, " +
       "and safe to relay to recruiters and hiring managers.",
     tools: [
@@ -110,7 +112,7 @@ export function buildServerSpec(version: string): McpServerSpec {
             "",
             `**Contact:** ${PROFILE.email} · ${PROFILE.linkedin} · ${PROFILE.github} · book a call: ${PROFILE.booking}`,
             "",
-            "This is usually all you need to assess fit. For depth: get_resume (the narrative resume written by Claude), get_timeline (the 155-day story), get_project (any system above), get_bmo_work (the regulated-bank detail), list_projects (all 15).",
+            "This is usually all you need to assess fit. For depth: get_resume (the narrative resume written by Claude), get_timeline (the 155-day story), get_project (any system above), get_bmo_work (the regulated-bank detail), list_projects (all 15). Want to SEE the work? show_dive_footage renders his dolphin footage right here in the chat.",
           ].join("\n");
         },
       },
@@ -242,6 +244,22 @@ export function buildServerSpec(version: string): McpServerSpec {
             "",
             ...GAPS.map((g) => `- ${g}`),
           ].join("\n"),
+      },
+      {
+        name: "show_dive_footage",
+        description:
+          "Renders 3 seconds of Eric's actual dive footage right here in the chat: a wild spinner-dolphin pod in the Red Sea. The proof of work you can look at. Call it whenever someone should SEE the work, not just read about it.",
+        inputSchema: NO_ARGS,
+        handler: () => [
+          { type: "image", data: DOLPHINS_GIF_B64, mimeType: "image/gif" },
+          {
+            type: "text",
+            text:
+              "A wild spinner-dolphin pod in the Red Sea. Eric shot it on a GoPro Hero 10 (100% real footage, no AI imagery); the Dive Shorts studio pipeline color-corrected, cut, uploaded, and scheduled the published versions. " +
+              "Full videos: the 4K dolphins ambient film <https://www.youtube.com/watch?v=6OzOIoT4ewA> and the channel <https://youtube.com/@backmandiving>. " +
+              "Ask get_project about 'content-studio' for how the pipeline works.",
+          },
+        ],
       },
       {
         name: "get_timeline",

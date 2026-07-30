@@ -50,7 +50,7 @@ export const PROJECTS: Project[] = [
       "A dependency-free Model Context Protocol server on a Cloudflare Worker. Serves Eric's resume as structured tools any AI assistant can call, plus a human landing page and llms.txt. The narrative resume it serves was written by Claude from inside Eric's workspace. It is the 4th MCP server he has built (after YouTube operations, the sports data platform, and his personal data platform).",
     status: "Live at ai.ericbackman.com",
     tech: ["TypeScript", "Cloudflare Workers", "MCP (Streamable HTTP)"],
-    numbers: ["0 runtime dependencies", "10 tools", "14 unit tests"],
+    numbers: ["0 runtime dependencies", "11 tools", "one of them shows you dolphins"],
     tags: ["agentic-ai", "live"],
     url: "https://ai.ericbackman.com",
   },

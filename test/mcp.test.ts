@@ -67,13 +67,38 @@ describe("tools", () => {
     }
   });
 
-  it("every tool runs with empty args and returns non-empty text", () => {
+  it("every tool runs with empty args and returns non-empty content", () => {
     for (const tool of spec.tools) {
       const args = tool.name === "get_project" ? { name: "dive-map" } : {};
       const result = resultOf(call("tools/call", { name: tool.name, arguments: args }, tool.name));
       const content = result["content"] as Array<Record<string, unknown>>;
       expect(result["isError"]).toBe(false);
-      expect((content[0]!["text"] as string).length).toBeGreaterThan(20);
+      expect(content.length).toBeGreaterThan(0);
+      const first = content[0]!;
+      if (first["type"] === "text") {
+        expect((first["text"] as string).length).toBeGreaterThan(20);
+      } else {
+        expect(first["type"]).toBe("image");
+        expect((first["data"] as string).length).toBeGreaterThan(1000);
+      }
+    }
+  });
+
+  it("show_dive_footage returns a GIF image block plus attribution text", () => {
+    const result = resultOf(call("tools/call", { name: "show_dive_footage" }));
+    const content = result["content"] as Array<Record<string, unknown>>;
+    expect(content[0]!["type"]).toBe("image");
+    expect(content[0]!["mimeType"]).toBe("image/gif");
+    const b64 = content[0]!["data"] as string;
+    expect(b64.length).toBeGreaterThan(100000);
+    expect(b64.startsWith("R0lGOD")).toBe(true); // "GIF89a" magic, base64
+    expect(content[1]!["type"]).toBe("text");
+    expect(content[1]!["text"]).toContain("GoPro");
+  });
+
+  it("every tool is annotated read-only", () => {
+    for (const tool of spec.tools) {
+      expect(tool.annotations).toMatchObject({ readOnlyHint: true, destructiveHint: false });
     }
   });
 
