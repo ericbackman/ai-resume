@@ -8,6 +8,8 @@ export interface ToolDef {
   name: string;
   description: string;
   inputSchema: Record<string, unknown>;
+  /** MCP tool annotations (readOnlyHint etc.) — hints for client permission UX. */
+  annotations?: Record<string, unknown>;
 }
 
 export type ToolHandler = (args: Record<string, unknown>) => string;
@@ -95,7 +97,12 @@ export function handleMessage(spec: McpServerSpec, raw: unknown): McpHttpResult 
 
     case "tools/list":
       return rpcResult(id, {
-        tools: spec.tools.map(({ name, description, inputSchema }) => ({ name, description, inputSchema })),
+        tools: spec.tools.map(({ name, description, inputSchema, annotations }) => ({
+          name,
+          description,
+          inputSchema,
+          ...(annotations === undefined ? {} : { annotations }),
+        })),
       });
 
     case "tools/call": {

@@ -386,13 +386,17 @@ ${cardsHtml}
   </section>
 
   <section id="connect">
-    <h2><span class="hash">#</span>Connect your AI</h2>
-    <p class="section-note">Paste a job description at your assistant and ask "is Eric a fit?" — the <code>get_skills_and_gaps</code> tool lists what he <strong>hasn't</strong> done, on purpose. Screen him on reality.</p>
-    <p><strong>Claude (claude.ai):</strong> Settings → Connectors → Add custom connector → <code>${MCP_URL}</code></p>
-    <p><strong>Claude Code:</strong></p>
+    <h2><span class="hash">#</span>Ask your AI about Eric</h2>
+    <p class="section-note">The honest screen: the server lists what he <strong>hasn't</strong> done alongside what he has. Two ways in; the first needs zero setup.</p>
+    <p><strong>No setup, any AI.</strong> Paste this into Claude, ChatGPT, or anything that reads a URL:</p>
+    <pre><code>Read https://ericbackman.com/resume.md and https://ericbackman.com/llms.txt,
+then tell me whether Eric fits this role: [paste the job description]</code></pre>
+    <p><strong>MCP connector, if you want the real thing.</strong> Endpoint: <code>${MCP_URL}</code></p>
+    <p>Claude: Settings → Connectors → Add custom connector. Claude Code:</p>
     <pre><code>claude mcp add --transport http eric-backman ${MCP_URL}</code></pre>
-    <p><strong>Any MCP client:</strong></p>
+    <p>Any MCP client:</p>
     <pre><code>{ "mcpServers": { "eric-backman": { "type": "http", "url": "${MCP_URL}" } } }</code></pre>
+    <p class="section-note">Your assistant may ask you to approve the first tool call — that's your AI being properly cautious with an unfamiliar server, not something this server can waive. Every tool is read-only and says so in its MCP annotations. One approved call to <code>about</code> returns the complete brief; approving it "always" makes the rest seamless.</p>
     <div class="note">
       <strong>Human?</strong> The prose version is at <a href="/resume.md">/resume.md</a> — a narrative resume written by Claude, in its own voice, from inside Eric's workspace.
       <strong>Crawler?</strong> <a href="/llms.txt">/llms.txt</a>.

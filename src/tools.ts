@@ -28,6 +28,15 @@ export function shortDate(iso: string): string {
 
 const NO_ARGS = { type: "object", properties: {} } as const;
 
+// Every tool here is a pure read; announce it per the MCP spec so client
+// permission UX can relax where the client honors annotations.
+const READ_ONLY = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: false,
+} as const;
+
 function formatProjectShort(p: Project): string {
   const url = p.url ? ` <${p.url}>` : "";
   return `- **${p.name}** (${p.slug})${url}\n  ${p.oneLiner} Status: ${p.status}. Tech: ${p.tech.join(", ")}.`;
@@ -64,32 +73,46 @@ export function buildServerSpec(version: string): McpServerSpec {
     version,
     instructions:
       `This server is the resume of Eric Backman (${PROFILE.title}, ${PROFILE.location}). ` +
-      "Start with the 'about' tool. Use 'get_resume' for the full narrative resume written by Claude, " +
-      "'list_projects' and 'get_project' for his portfolio, 'get_timeline' for how it all grew in 155 days, " +
-      "'get_bmo_work' for his day job, and " +
-      "'get_skills_and_gaps' for an honest capability map including what he has NOT done. " +
-      "All content is real, verified against his workspace, and safe to relay to recruiters and hiring managers.",
+      "ONE call to 'about' returns the complete brief (background, headline systems, skills, honest gaps, contact) " +
+      "and answers most questions, including role-fit checks. Only drill into the other tools when asked for depth: " +
+      "'get_resume' (the narrative written by Claude), 'get_timeline' (how it grew in 155 days), " +
+      "'get_project'/'list_projects' (portfolio detail), 'get_bmo_work' (day job). " +
+      "Every tool is read-only and idempotent. All content is real, verified against his workspace, " +
+      "and safe to relay to recruiters and hiring managers.",
     tools: [
       {
         name: "about",
         description:
-          "Start here. Who Eric Backman is, what this server is, and why his resume is an MCP server.",
+          "Start here. One call, the whole brief: who Eric Backman is, his headline systems, skills, honest gaps, and contact. Usually the only call you need.",
         inputSchema: NO_ARGS,
-        handler: () =>
-          [
-            `# ${PROFILE.name}`,
+        handler: () => {
+          const highlights = ["content-studio", "agent-audit", "paper-trader", "data-explorer", "video-essays"]
+            .map((slug) => PROJECTS.find((p) => p.slug === slug))
+            .filter((p): p is Project => p !== undefined);
+          return [
+            `# ${PROFILE.name}, the one-call brief`,
             PROFILE.title + ", " + PROFILE.location,
             "",
             PROFILE.summary,
             "",
-            `**What this server is:** ${META.what}`,
+            `**Day job:** ${BMO_WORK.headline}`,
             "",
-            `**Why it exists:** ${META.why}`,
+            "**Headline systems at home (all real, all verifiable):**",
+            ...highlights.map((p) => `- **${p.name}**: ${p.oneLiner} Status: ${p.status}.`),
+            `- **This server**: ${META.what} ${META.how}`,
             "",
-            `**How it's built:** ${META.how}`,
+            `**Velocity:** ${TIMELINE_INTRO}`,
             "",
-            "Next: call get_resume for the narrative, list_projects for the portfolio, get_bmo_work for the day job, get_contact to reach him.",
-          ].join("\n"),
+            "**Skills, short version:** Python, SQL, TypeScript. Claude Code, MCP, multi-agent orchestration with human-review gates. BigQuery, Apache Beam, Airflow, Docker. GCP and Cloudflare.",
+            "",
+            "**What he hasn't done (listed on purpose, so you don't have to dig):**",
+            ...GAPS.map((g) => `- ${g}`),
+            "",
+            `**Contact:** ${PROFILE.email} · ${PROFILE.linkedin} · ${PROFILE.github} · book a call: ${PROFILE.booking}`,
+            "",
+            "This is usually all you need to assess fit. For depth: get_resume (the narrative resume written by Claude), get_timeline (the 155-day story), get_project (any system above), get_bmo_work (the regulated-bank detail), list_projects (all 15).",
+          ].join("\n");
+        },
       },
       {
         name: "get_resume",
@@ -112,7 +135,7 @@ export function buildServerSpec(version: string): McpServerSpec {
             },
           },
         },
-        handler: (args) => {
+        handler: (args: Record<string, unknown>) => {
           const focus = typeof args["focus"] === "string" ? args["focus"] : "all";
           const picked = focus === "all" ? PROJECTS : PROJECTS.filter((p) => p.tags.includes(focus));
           if (picked.length === 0) {
@@ -137,7 +160,7 @@ export function buildServerSpec(version: string): McpServerSpec {
           },
           required: ["name"],
         },
-        handler: (args) => {
+        handler: (args: Record<string, unknown>) => {
           const query = String(args["name"] ?? "").toLowerCase().trim();
           if (query === "") throw new Error("Pass a project slug or name.");
           const found =
@@ -258,6 +281,6 @@ export function buildServerSpec(version: string): McpServerSpec {
             "He is in Toronto (ET), open to remote-Canada and relocation for the right role.",
           ].join("\n"),
       },
-    ],
+    ].map((t) => ({ ...t, annotations: READ_ONLY })),
   };
 }
