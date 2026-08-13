@@ -291,11 +291,14 @@ export const PROJECTS: Project[] = [
     oneLiner: "A weekly newsletter that reads his AI's work logs and writes itself.",
     description:
       "Reads the week's Claude Code session transcripts and git history across the whole workspace, ranks projects by how much Eric personally steered them, generates charts, and publishes a 'here's what I built' issue. Transcript parsing is pure Python in milliseconds; the model only ever sees a ~2 KB digest.",
-    status: "Live archive at rickleberry.ericbackman.com (weekly job, currently paused by choice)",
+    // No public URL by design. The newsletter publishes under a pen name, and a
+    // link from a page carrying Eric's name would deanonymize it — which is the
+    // whole point of the pen name. The system is the portfolio item; the
+    // publication is not, so it is described here but never pointed at.
+    status: "Live archive published under a pen name (weekly job, currently paused by choice)",
     tech: ["Python", "Anthropic API", "Cloudflare Pages"],
     numbers: ["7 published issues", "~100 MB of transcripts condensed to ~2 KB per issue"],
     tags: ["agentic-ai", "automated", "live"],
-    url: "https://rickleberry.ericbackman.com",
     detail: [
       "Ranking is by human steering, not output volume: interventions outweigh commits, commits outweigh ships. The interesting work is where Eric had to step in.",
       "A shared redaction module scrubs secrets and PII at render time before anything publishes.",
