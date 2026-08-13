@@ -3,7 +3,7 @@
 // drift. Client JS builds DOM via createElement/textContent only — no
 // innerHTML with dynamic content, matching the workspace house rule.
 
-import { PROFILE, META, PROJECTS, WORKSPACE, FEATURED_VIDEOS, TIMELINE, TIMELINE_INTRO, type Project } from "./resume-data";
+import { PROFILE, META, PROJECTS, WORKSPACE, FEATURED_VIDEOS, TIMELINE, TIMELINE_INTRO, CHANNEL, type Project } from "./resume-data";
 import { buildServerSpec, shortDate } from "./tools";
 
 const MCP_URL = "https://ai.ericbackman.com/mcp";
@@ -20,13 +20,15 @@ const SPEC = buildServerSpec("0.0.0");
 
 // ---- server-rendered fragments -------------------------------------------
 
+// Verified against the workspace on 2026-08-10, same pass as resume-data.ts.
+// Keep these in step with WORKSPACE.stats — they are the short form of it.
 const STAT_TILES: Array<{ value: string; label: string }> = [
-  { value: "20", label: "repos with real history (of 74 on disk)" },
-  { value: "753", label: "commits in 2026" },
-  { value: "289", label: "trust-scored agent sessions" },
-  { value: "26", label: "live subdomains" },
+  { value: "27", label: "repos with real history (of 87 on disk)" },
+  { value: "1,035", label: "commits in 2026" },
+  { value: "365", label: "trust-scored agent sessions" },
+  { value: "39", label: "hostnames on the estate" },
   { value: "4", label: "MCP servers built" },
-  { value: "17", label: "operational playbooks" },
+  { value: "25", label: "operational playbooks" },
 ];
 
 const statTilesHtml = STAT_TILES.map(
@@ -359,11 +361,11 @@ ${toolChipsHtml}
 
   <section id="watch">
     <h2><span class="hash">#</span>Watch the output</h2>
-    <p class="section-note">Live from the channel the Dive Shorts studio runs. Eric shot every frame; Claude reviewed the footage, cut and color-corrected each video, uploaded it, and scheduled its release. Tap to watch on YouTube.</p>
+    <p class="section-note">Live from the channel the Scuba Sessions studio runs. Eric shot every frame; Claude reviewed the footage, cut and color-corrected each video, uploaded it, and scheduled its release. Tap to watch on YouTube.</p>
     <div class="vid-wall">
 ${videoWallHtml}
     </div>
-    <p class="section-note" style="margin-top:10px">More at <a href="https://youtube.com/@backmandiving" target="_blank" rel="noopener">@backmandiving</a> — 111 videos uploaded by the pipeline so far.</p>
+    <p class="section-note" style="margin-top:10px">More at <a href="${CHANNEL.url}" target="_blank" rel="noopener">${escapeHtml(CHANNEL.handle)}</a> — ${CHANNEL.videosPublic} videos public, all cut and scheduled by the pipeline.</p>
   </section>
 
   <section id="timeline">

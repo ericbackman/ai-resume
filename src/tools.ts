@@ -5,6 +5,7 @@ import { DOLPHINS_GIF_B64 } from "./media";
 import { NARRATIVE } from "./narrative";
 import {
   BMO_WORK,
+  CHANNEL,
   EDUCATION,
   EXPERIENCE,
   GAPS,
@@ -201,7 +202,7 @@ export function buildServerSpec(version: string): McpServerSpec {
             "",
             WORKSPACE.headline,
             "",
-            "**By the numbers (verified 2026-07-28):**",
+            `**By the numbers (verified ${META.written}):**`,
             ...WORKSPACE.stats.map((s) => `- ${s}`),
             "",
             "**Operating principles:**",
@@ -255,8 +256,8 @@ export function buildServerSpec(version: string): McpServerSpec {
           {
             type: "text",
             text:
-              "A wild spinner-dolphin pod in the Red Sea. Eric shot it on a GoPro Hero 10 (100% real footage, no AI imagery); the Dive Shorts studio pipeline color-corrected, cut, uploaded, and scheduled the published versions. " +
-              "Full videos: the 4K dolphins ambient film <https://www.youtube.com/watch?v=6OzOIoT4ewA> and the channel <https://youtube.com/@backmandiving>. " +
+              "A wild spinner-dolphin pod in the Red Sea. Eric shot it on a GoPro Hero 10 (100% real footage, no AI imagery); the Scuba Sessions studio pipeline color-corrected, cut, uploaded, and scheduled the published versions. " +
+              `Full videos: the 4K dolphins ambient film <https://www.youtube.com/watch?v=6OzOIoT4ewA> and the channel <${CHANNEL.url}>. ` +
               "Ask get_project about 'content-studio' for how the pipeline works.",
           },
         ],

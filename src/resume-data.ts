@@ -1,6 +1,6 @@
 // All resume content, in one place. Every number here was pulled from the
 // workspace it describes (commit logs, config files, operations registries,
-// and the data files themselves — never READMEs, which drift) on 2026-07-28.
+// and the data files themselves — never READMEs, which drift) on 2026-08-10.
 // Update this file, redeploy, done.
 
 export const PROFILE = {
@@ -14,6 +14,17 @@ export const PROFILE = {
   booking: "https://calendar.app.google/YUR2Cv6ayZyb8wXC8",
   summary:
     "Data engineer and applied AI builder in Toronto. At BMO he builds the data platform and multi-agent LLM pipelines behind FRTB regulatory capital investigations. At home he runs an agentic workspace where Claude Code operates with real responsibility behind engineered guardrails: memory, review gates, playbooks, and a session-level trust score. This server is itself one of his projects.",
+};
+
+// The live channel, in one place. The landing page's video section and the
+// content-studio project entry both read from here so the handle can't drift
+// again — it was renamed from @backmandiving to @scubasessions in August 2026
+// and the landing page kept the dead handle hardcoded.
+export const CHANNEL = {
+  handle: "@scubasessions",
+  url: "https://youtube.com/@scubasessions",
+  videosPublic: 90,
+  views: 93220,
 };
 
 export interface Part {
@@ -56,27 +67,32 @@ export const PROJECTS: Project[] = [
   },
   {
     slug: "content-studio",
-    name: "Dive Shorts studio (YouTube)",
-    oneLiner: "Tools that let Claude turn a pile of raw dive footage into a running YouTube channel.",
+    name: "Scuba Sessions studio (YouTube + Instagram)",
+    oneLiner: "Tools that let Claude turn a pile of raw dive footage into a running YouTube channel and an Instagram feed.",
     description:
-      "Claude takes Eric's raw 4K scuba footage and does the rest: reviews the clip library, defines each cut, color-corrects and reframes to a 9:16 Short in one ffmpeg pass, writes the title, uploads as private, and schedules the publish drip. Daily jobs keep the queue moving; a weekly channel-manager loop reads the analytics and preps what's next. Eric dives and approves. Long-form ambient videos ship through the same tools, with a 6-agent research, storyboard, and review crew behind the narrated ones.",
-    status: "Live channel (youtube.com/@backmandiving), 5 scheduled jobs",
-    tech: ["Python (stdlib render pipeline)", "ffmpeg", "YouTube Data + Analytics APIs", "Claude subagents"],
-    numbers: ["111 videos uploaded", "74 Shorts public", "217-entry publish queue", "308 source clips catalogued"],
+      "Claude takes Eric's raw 4K scuba footage and does the rest: reviews the clip library, defines each cut, color-corrects and reframes to a 9:16 Short in one ffmpeg pass, writes the title, uploads as private, and schedules the publish drip. Daily jobs keep the queue moving. Since August a single weekly manager runs both surfaces at once, with a sync gate that stops the same clip going out twice. Eric dives and approves. Hour-long ambient dive videos ship through the same tools, with a 6-agent research, storyboard, and review crew behind the narrated ones.",
+    status: `Live channel (${CHANNEL.handle}) plus Instagram Reels, 7 scheduled jobs`,
+    tech: ["Python (stdlib render pipeline)", "ffmpeg", "YouTube Data + Analytics APIs", "Instagram Graph API", "Claude subagents"],
+    numbers: [
+      `${CHANNEL.videosPublic} videos public`,
+      `${CHANNEL.views.toLocaleString("en-US")} channel views`,
+      "500 source clips catalogued",
+      "217-entry publish queue",
+    ],
     tags: ["agentic-ai", "automated", "live"],
-    url: "https://youtube.com/@backmandiving",
+    url: CHANNEL.url,
     parts: [
-      { name: "footage intake", note: "catalogues the 4K clip library (308 clips) and defines each Short's cut" },
+      { name: "footage intake", note: "catalogues the 4K clip library (500 clips) and defines each Short's cut" },
       { name: "editor", note: "trim, underwater color correction, 9:16 reframe, text overlays, one ffmpeg pass" },
       { name: "upload & schedule", note: "uploads as private, then drips publishes on a schedule" },
       { name: "analytics monitor", note: "daily velocity and playlist checks, flags feed misses" },
       { name: "long-form crew", note: "6 agents (research, storyboard, visuals, edit, adversarial review, management) for narrated long-form" },
-      { name: "channel manager", note: "weekly loop: diagnose retention, prep the next video, hand Eric one decision" },
+      { name: "social manager", note: "weekly loop across both surfaces: an Opus manager diagnoses and decides, three Sonnet legs do the grunt work, Eric gets one decision" },
     ],
     detail: [
-      "5 scheduled jobs run the pipeline: pre-render 07:00, upload 08:30, analytics monitor 09:00, weekly publish-drip scheduling, and a Sunday channel-manager checkpoint.",
-      "Formats are greenlit on data: a 64-minute sleep-video pilot earned 19.6 watch-hours against 5.6 and 1.3 for its comparables, so the format shipped.",
-      "The human gate is structural: scheduled jobs upload as private only. Nothing goes public without Eric's review.",
+      "The manager is an org chart, not a prompt: an Opus agent owns the plan and hands the deterministic legs (analytics, YouTube ops, Instagram ops) to Sonnet agents whose tool lists omit every publish and delete call.",
+      "Formats are greenlit on data: a 64-minute sleep-video pilot earned 19.6 watch-hours against 5.6 and 1.3 for its comparables, so the format shipped and hour-long ambient dives are now a regular slot.",
+      "The human gate is structural: scheduled jobs upload as private only. Nothing goes public without Eric's review, and the Instagram publisher ships registered-disabled until he confirms the manual warm-up posts happened.",
     ],
   },
   {
@@ -84,19 +100,19 @@ export const PROJECTS: Project[] = [
     name: "Agent reliability dashboard",
     oneLiner: "Scores every logged Claude Code session on how far it ran unattended.",
     description:
-      "A global Stop hook logs every session; the dashboard turns the generation-to-verification loop into a 0-to-100 trust score. A needed human correction hard-caps a session at 60, because stepping in at all proves it wasn't safe to run alone. After a silent 8-day deploy freeze, the page gained a staleness guard so a frozen dashboard flags its own age instead of failing quietly.",
-    status: "Live at loop.ericbackman.com (Access-gated), refreshed weekly by a scheduled job",
+      "A global Stop hook logs every session; the dashboard turns the generation-to-verification loop into a 0-to-100 trust score. A needed human correction hard-caps a session at 60, because stepping in at all proves it wasn't safe to run alone. After a silent 8-day deploy freeze, the page gained a staleness guard so a frozen dashboard flags its own age instead of failing quietly. It now also reads each session's transcript to attribute work to the model that did it, and compares models only within a complexity band.",
+    status: "Live at loop.ericbackman.com, private behind Cloudflare Access, refreshed weekly by a scheduled job",
     tech: ["Python (stdlib, tested)", "Cloudflare Workers", "Cloudflare Access", "hand-rolled SVG charts"],
     numbers: [
-      "289 logged sessions across 39 projects",
-      "25,610 tool calls and 5,427 files changed measured",
+      "365 logged sessions across 47 projects",
+      "33,137 tool calls and 7,479 files changed measured",
       "average trust 81/100, correction rate 0.21",
     ],
     tags: ["agentic-ai", "live", "automated"],
-    url: "https://loop.ericbackman.com",
     detail: [
       "Data source is a deterministic global Stop hook that appends one JSON line per session; the dashboard is a tested stdlib-Python build over that log.",
       "The rubric is versioned (v1-hardcap) so scores stay comparable as it evolves.",
+      "Model comparison is stratified by task complexity, because the harder work is routed to the stronger model and a raw average would punish it for that.",
       "Built explicitly to speed up the generation-to-verification loop, the slowest axis of running agents with real responsibility.",
     ],
   },
@@ -137,15 +153,85 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
+    slug: "ai-lab",
+    name: "Local-model agent sandbox",
+    oneLiner: "A boundary that makes it safe to let an agent run unattended on hardware you already own.",
+    description:
+      "Two decoupled halves on a home Ubuntu server: an open-weight MoE model served by llama.cpp at zero cost per token, and a hardened sandbox that is the actual point. The runner is treated as a security boundary, not ordinary code, so an agent inside it cannot reach the family NAS, a live Discord bot token, the LAN, or the internet. The sandbox holds no credentials at all, because the network boundary is the access control. It is model-agnostic: pointed at the local model today, at Claude tomorrow.",
+    status: "Built and measured, deliberately never scheduled",
+    tech: ["Python (stdlib, tested)", "llama.cpp", "Docker", "Tailscale"],
+    numbers: ["639x faster prefill with prompt caching", "8.6 tokens/sec on CPU with no usable GPU", "0 credentials inside the sandbox"],
+    tags: ["agentic-ai"],
+    detail: [
+      "Every performance number was measured on the actual box rather than estimated, and one widely-repeated claim about MoE prefill collapsing on CPU did not survive the measurement.",
+      "The architecture choice falls out of the hardware: token generation is memory-bandwidth-bound, so a mixture-of-experts model reads only its active experts and runs roughly as fast as a model a fifth its size.",
+      "Every change to the boundary needs a matching test, and the deploy script refuses to ship with failing tests. A containment check runs after anything touches mounts or networking.",
+      "It has no cron, no timer, and no scheduled task on purpose. Nothing here fires unattended without Eric saying so first.",
+    ],
+  },
+  {
+    slug: "ucp-probe",
+    name: "Agentic-commerce conformance prober",
+    oneLiner: "Checks whether a store's machine-readable storefront is actually valid, before a shopping agent trips over it.",
+    description:
+      "UCP is the emerging standard for telling AI shopping agents what a store sells and how to buy it. This tool fetches a shop's published profile, validates it against the official schemas, probes the MCP endpoint that profile declares, and prints a conformance report. Point it at a list of domains and it emits a dataset instead. The transport probe is read-only by construction: it sends a tool listing and nothing else, never builds a cart, never touches checkout.",
+    status: "v0.2, with a live health monitor on a 15-minute cron",
+    tech: ["Python (tested)", "JSON Schema", "MCP", "Cloudflare Workers"],
+    numbers: ["228 tests", "19 storefronts surveyed, 14 serving a valid profile", "all 14 still exposed to a sunsetting endpoint"],
+    tags: ["agentic-ai", "data", "live"],
+    parts: [
+      { name: "profile validator", note: "checks both business and agent profiles against the official schemas, vendored and dated" },
+      { name: "transport probe", note: "read-only MCP check: lists tools, never calls one" },
+      { name: "migration diff", note: "compares the legacy endpoint against the new one to show exactly what breaks at the cutover" },
+      { name: "agent-profile monitor", note: "Worker cron every 15 minutes; alerts if the published profile stops being valid JSON" },
+    ],
+    detail: [
+      "The survey produced a finding worth the build: every conformant store checked was still serving a legacy endpoint scheduled to be switched off, and one of its tools has no equivalent in the new protocol at all.",
+      "The monitor exists because merchants re-fetch that profile on roughly every tool call, so a malformed profile fails the whole shopping session rather than degrading gracefully.",
+      "It deliberately publishes no agent profile of its own. A call that acts on a store has to identify the calling agent, so inventing an identity would be a lie on the wire.",
+    ],
+  },
+  {
+    slug: "buddycheck-clips",
+    name: "Review-gated clip pipeline",
+    oneLiner: "Turns a folder of footage into vertical clips, where the thing you approved is literally the thing that ships.",
+    description:
+      "A zero-dependency package (the standard library plus the ffmpeg binary already on the machine) that trims, color-corrects and reframes raw footage. The review gate is the point. Before anything renders, it writes a contact sheet of three stills pushed through the exact filtergraph that will publish: same color preset, same crop window, same burned text at the same size relative to the frame. The sheet imports the publish graph rather than assembling a preview of its own, because a review sheet built from a different graph is a review of a video that does not exist.",
+    status: "v0.1.0, generalized out of the dive studio",
+    tech: ["Python (stdlib only)", "ffmpeg"],
+    numbers: ["203 tests", "0 runtime dependencies"],
+    tags: ["agentic-ai", "automated"],
+    detail: [
+      "The verdict is enforced in the code path rather than in a prompt: a strict render builds only what a human marked keep, nothing ever builds something marked cut, and no function in the package can create a clip already marked keep.",
+      "This is the reusable core pulled out of the studio that runs the live channel, so the gate is one an agent has actually been held to rather than a hypothetical.",
+    ],
+  },
+  {
+    slug: "commerce-experiment",
+    name: "Pre-registered commerce experiment",
+    oneLiner: "A $500 business experiment run like a study, with the money ledger in public.",
+    description:
+      "A data-art store whose product geometry is computed from real sports databases and validated in-script against known public facts. The discipline is the deliverable: a $500 hard cap, every dollar posted to a public ledger from the first one, decision gates written down before the data arrives, and losing design families killed on a threshold set in advance. Demand is tested before any store spend, and the paid-ad reserve stays locked behind a gate that has not opened.",
+    status: "Pre-launch: demand test drafted, store not yet created",
+    tech: ["Python (stdlib core)", "SQLite", "Shopify", "Printify"],
+    numbers: ["$500 hard cap, $12.20 spent so far", "4-stage KPI tree, every gate pre-registered"],
+    tags: ["data"],
+    detail: [
+      "One file is the source of truth for every metric definition and decision gate. A number anywhere else that disagrees with it is treated as a bug, not a discrepancy.",
+      "Publishing the costs is a constraint rather than bookkeeping: a venture that shows its spend cannot quietly become a hobby that claims an outcome without saying what the outcome cost.",
+    ],
+  },
+  {
     slug: "askviz",
     name: "AskViz",
     oneLiner: "Ask a plain-English question about your data, get a chart on your phone.",
     description:
       "A Cloudflare Worker turns a plain-English question into a Vega-Lite chart over Eric's real (personal) betting history, rendered in a phone PWA. The AI-safety design is the point: Claude never sees a raw record and never does arithmetic. It only chooses a grouping and axis mapping; TypeScript computes every figure, so a fabricated number is structurally impossible. Ships an offline planner that works with no API key at all.",
-    status: "v0 deployed",
+    status: "Live at viz.ericbackman.com",
     tech: ["TypeScript", "Cloudflare Workers", "Claude API", "Vega-Lite", "PWA"],
     numbers: ["19 passing tests", "~20 KB gzipped bundle"],
-    tags: ["agentic-ai", "data"],
+    tags: ["agentic-ai", "data", "live"],
+    url: "https://viz.ericbackman.com",
     detail: [
       "Division of labor is the design: the model chooses grouping and axes, TypeScript computes every figure. Chart wrong at worst, number never wrong.",
       "Ships an offline planner covering common questions, so the app works with no API key at all.",
@@ -168,6 +254,8 @@ export const PROJECTS: Project[] = [
       { name: "Golf", note: "every PGA Tour event 2005-2026, majors to 1960, 7M-row holes table" },
       { name: "sports-data MCP server", note: "read-only list_databases / describe_schema / run_sql for any Claude surface" },
       { name: "sports-crons", note: "the write path: daily containerized ingestion on the home server, the only writer to the DBs" },
+      { name: "podcasts", note: "RSS to transcript to SQLite full-text search, so spoken-word sources are queryable the same way" },
+      { name: "Data Lab", note: "the public read surface at datalab.ericbackman.com" },
     ],
     detail: [
       "Read path and write path are separate repos on purpose: the ingestion container is the only writer, everything else queries read-only.",
@@ -179,18 +267,22 @@ export const PROJECTS: Project[] = [
     name: "Job-hunt operating system",
     oneLiner: "The job search itself, run as an agentic system.",
     description:
-      "A daily watcher sweeps 23 company job boards and diffs postings by ATS id, with an independent liveness watchdog alerting if the sweep goes stale. A reconciler agent reads Gmail and keeps the application tracker honest. A fresh-context reviewer agent audits every resume against a checklist distilled from a post-mortem of 4 fast rejections. This MCP server is the newest module.",
+      "A daily watcher sweeps 22 company career boards and 6 public job aggregators, diffing postings by ATS id, with an independent liveness watchdog alerting if either half goes stale. A reconciler agent reads Gmail and keeps the application tracker honest. A fresh-context reviewer agent audits every resume against a checklist distilled from a post-mortem of 4 fast rejections. This MCP server is the newest module.",
     status: "Live, daily scheduled sweep plus watchdog",
     tech: ["Node.js", "Claude subagents", "ATS JSON APIs", "Gmail"],
-    numbers: ["23 job boards swept daily", "4 purpose-built subagents"],
+    numbers: ["28 job sources swept daily", "4 purpose-built subagents"],
     tags: ["agentic-ai", "automated"],
     parts: [
       { name: "role-scout", note: "sources roles and live-verifies each posting against the ATS JSON API" },
       { name: "tracker-reconciler", note: "reads Gmail, classifies confirmations and rejections, keeps the tracker honest" },
       { name: "resume-tailor", note: "re-angles bullets to what a role actually screens for" },
       { name: "voice-ats-reviewer", note: "fresh-context gate: voice + ATS check before any PDF renders" },
-      { name: "daily-jobs-watch", note: "9:01 sweep of 23 boards, diffing on stable ATS posting ids" },
-      { name: "liveness watchdog", note: "independent daily check that alerts if the sweep itself goes stale" },
+      { name: "daily-jobs-watch", note: "9:01 sweep of 22 company boards and 6 aggregators, diffing on stable ATS posting ids" },
+      { name: "liveness watchdog", note: "independent daily check that alerts if either half of the sweep goes stale" },
+    ],
+    detail: [
+      "The two sweeps cover different blind spots on purpose: the curated company list is high precision but can only find roles at companies already on it, and the aggregator sweep catches a good role at a company nobody thought to add.",
+      "The watchdog exists because the watcher exits 0 whether it found nothing or died, so a dead sweep and a quiet job market look identical in git history. It keys off a freshness marker instead, and runs on a different scheduler than the thing it watches.",
     ],
   },
   {
@@ -215,11 +307,10 @@ export const PROJECTS: Project[] = [
     oneLiner: "A zero-inference personal tutor for the FRM Part I exam.",
     description:
       "Fully static exam-prep platform built on evidence-based learning: retrieval practice, FSRS-4.5 spaced repetition per question, interleaving, adaptive sampling by exam weight and per-book weakness, and blueprint-weighted timed mocks. Content was AI-authored under a validating build script; the served site makes zero API calls.",
-    status: "Live at frm.ericbackman.com",
+    status: "Live at frm.ericbackman.com, private behind Cloudflare Access (it is his own study tool)",
     tech: ["Python build", "static HTML/JS", "vendored KaTeX", "GitHub Pages"],
     numbers: ["501 questions across 12 banks", "60 textbook-chapter note sets"],
     tags: ["web", "live"],
-    url: "https://frm.ericbackman.com",
   },
   {
     slug: "dive-map",
@@ -301,14 +392,14 @@ export const WORKSPACE = {
   headline:
     "An agentic workspace where Claude Code operates with real responsibility behind engineered guardrails.",
   stats: [
-    "20 repositories with substantial history (10+ commits), 17 of them active in the last 30 days. 74 sit on disk in total; the rest are experiments and dead ends, counted honestly.",
-    "753 commits across the workspace in the first 7 months of 2026",
-    "26 live subdomains under ericbackman.com (this server is the newest)",
-    "289 logged agent sessions across 39 projects: 25,610 tool calls, 5,427 files changed, every session trust-scored",
-    "13 custom subagents with narrow jobs and scoped tools",
-    "197 memory files across 16 projects, carrying corrections between sessions",
-    "17 operational playbooks, one per live system",
-    "12 scheduled jobs routed through one retry/log/alert wrapper",
+    "27 repositories with substantial history (10+ commits), 24 of them active in the last 30 days. 87 sit on disk in total; the rest are experiments and dead ends, counted honestly.",
+    "1,035 commits across the workspace so far in 2026",
+    "39 hostnames under ericbackman.com, 13 public and the rest closed behind Cloudflare Access",
+    "365 logged agent sessions across 47 projects: 33,137 tool calls, 7,479 files changed, every session trust-scored",
+    "22 custom subagents with narrow jobs and scoped tools",
+    "202 memory files across 18 projects, carrying corrections between sessions",
+    "25 operational playbooks, one per live system",
+    "22 scheduled jobs across three tiers, 16 of them through one retry/log/alert wrapper",
     "4 MCP servers built: YouTube operations, sports databases, personal data platform, and this resume",
   ],
   principles: [
@@ -323,7 +414,7 @@ export const WORKSPACE = {
 };
 
 export const BMO_WORK = {
-  role: "Data Scientist, Market Risk (Capital), Aug 2025 to present",
+  role: "Senior Analyst, Market Risk (Data Scientist), Aug 2025 to present",
   headline:
     "Builds the data platform and multi-agent LLM pipelines behind FRTB (Fundamental Review of the Trading Book) regulatory capital investigations. Risk analysts now get answers in under 15 minutes that used to take 2 days.",
   detail: [
@@ -340,7 +431,7 @@ export const BMO_WORK = {
 export const EXPERIENCE = [
   {
     org: "BMO (Bank of Montreal)",
-    role: "Data Scientist",
+    role: "Senior Analyst, Market Risk (Data Scientist)",
     period: "Aug 2025 to present",
     where: "Toronto",
     note: "Data platform and multi-agent LLM pipelines for FRTB SA regulatory capital investigations. Cut analyst investigation time from 2 days to under 15 minutes. Ask the get_bmo_work tool for detail.",
@@ -514,5 +605,5 @@ export const META = {
   what: "This server is Eric's resume, published as a Model Context Protocol server so AI assistants can query it directly.",
   why: "A resume can claim anything. This one is built as evidence: it is served by an MCP server Eric built, its narrative was written by the AI he works with every day, and every number in it was pulled from the workspace it describes.",
   how: "Hand-rolled JSON-RPC over Streamable HTTP on a Cloudflare Worker. No runtime dependencies. Stateless. The content lives in one typed data module.",
-  written: "2026-07-28",
+  written: "2026-08-10",
 };
