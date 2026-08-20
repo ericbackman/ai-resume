@@ -497,7 +497,8 @@ export const GAPS = [
   "Formal data-science job tenure is about 2 years (Ecobee + BMO), alongside the 3-year independent lab.",
 ];
 
-// The 7-track timeline. Dates are git first-commits (verified 2026-07-29);
+// The 7-track timeline. Dates are git first-commits (verified 2026-07-29;
+// August events verified against commit logs 2026-08-19);
 // layout hints (row/anchor) are hand-placed to avoid label collisions in the
 // landing-page SVG. get_timeline serves the same data as text.
 export interface TimelineEvent {
@@ -524,6 +525,7 @@ export const TIMELINE: TimelineTrack[] = [
       { date: "2026-05-10", label: "Bet tracker", row: "below" },
       { date: "2026-06-28", label: "Paper trader", row: "above" },
       { date: "2026-07-10", label: "Video essays", row: "below" },
+      { date: "2026-08-08", label: "Voice clone", row: "above" },
     ],
   },
   {
@@ -535,6 +537,7 @@ export const TIMELINE: TimelineTrack[] = [
       { date: "2026-06-05", label: "Shorts channel live", row: "below" },
       { date: "2026-07-14", label: "Sleep format greenlit", row: "above", anchor: "end" },
       { date: "2026-07-19", label: "Second channel", row: "below2", anchor: "end" },
+      { date: "2026-08-12", label: "Instagram Reels", row: "below", anchor: "end" },
     ],
   },
   {
@@ -545,6 +548,7 @@ export const TIMELINE: TimelineTrack[] = [
       { date: "2026-06-10", label: "Groovy reborn", row: "above" },
       { date: "2026-06-12", label: "Picks league, first Worker", row: "below" },
       { date: "2026-07-18", label: "5-bot fleet", row: "above", anchor: "end" },
+      { date: "2026-08-13", label: "Picks hub", row: "below" },
     ],
   },
   {
@@ -556,6 +560,7 @@ export const TIMELINE: TimelineTrack[] = [
       { date: "2026-06-12", label: "First Worker + D1", row: "below" },
       { date: "2026-06-28", label: "Durable Objects + Access", row: "below2" },
       { date: "2026-07-28", label: "Worker apex", row: "above", anchor: "end" },
+      { date: "2026-08-19", label: "Live draft rooms", row: "below", anchor: "end" },
     ],
   },
   {
@@ -566,6 +571,7 @@ export const TIMELINE: TimelineTrack[] = [
       { date: "2026-05-24", label: "Travels site", row: "above" },
       { date: "2026-07-01", label: "Deduped library", row: "below" },
       { date: "2026-07-02", label: "Photo map", row: "above", anchor: "end" },
+      { date: "2026-08-14", label: "Trip galleries", row: "below2", anchor: "end" },
     ],
   },
   {
@@ -576,6 +582,7 @@ export const TIMELINE: TimelineTrack[] = [
       { date: "2026-05-15", label: "Session logger", row: "above" },
       { date: "2026-06-02", label: "Newsletter", row: "below" },
       { date: "2026-07-01", label: "Trust dashboard", row: "above" },
+      { date: "2026-08-03", label: "Local-model lab", row: "below" },
     ],
   },
   {
@@ -586,6 +593,7 @@ export const TIMELINE: TimelineTrack[] = [
       { date: "2026-05-08", label: "Job-hunt ops", row: "above" },
       { date: "2026-06-27", label: "Rejection audit", row: "below" },
       { date: "2026-07-28", label: "MCP resume live", row: "above", anchor: "end" },
+      { date: "2026-08-16", label: "Workday watch", row: "below", anchor: "end" },
     ],
   },
 ];

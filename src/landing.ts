@@ -109,7 +109,7 @@ const TL_COLORS: Record<string, string> = {
 const TL_X0 = 150;
 const TL_X1 = 960;
 const TL_EPOCH = Date.UTC(2026, 1, 1); // Feb 1, 2026
-const TL_SPAN_DAYS = 181; // Feb 1 -> Aug 1
+const TL_SPAN_DAYS = 212; // Feb 1 -> Sep 1
 
 function tlX(iso: string): number {
   const [y, m, d] = iso.split("-").map(Number);
@@ -124,11 +124,11 @@ function buildTimelineSvg(): string {
   const height = bottom + 20;
   const parts: string[] = [];
   parts.push(
-    `<svg viewBox="0 0 1000 ${height}" role="img" aria-label="Seven-track timeline, February to July 2026" style="min-width:920px;display:block;width:100%">`,
+    `<svg viewBox="0 0 1000 ${height}" role="img" aria-label="Seven-track timeline, February to August 2026" style="min-width:920px;display:block;width:100%">`,
   );
-  for (let m = 1; m <= 7; m++) {
+  for (let m = 1; m <= 8; m++) {
     const x = tlX(`2026-0${m + 1}-01`);
-    const label = ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug"][m - 1];
+    const label = ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"][m - 1];
     parts.push(
       `<line x1="${x}" y1="72" x2="${x}" y2="${bottom}" stroke="#30363d" stroke-width="1" stroke-dasharray="2,5"/>`,
       `<text x="${x}" y="58" font-size="12" fill="#8b949e" text-anchor="middle">${label}</text>`,
@@ -369,7 +369,7 @@ ${videoWallHtml}
   </section>
 
   <section id="timeline">
-    <h2><span class="hash">#</span>155 days</h2>
+    <h2><span class="hash">#</span>177 days</h2>
     <p class="section-note">${escapeHtml(TIMELINE_INTRO)} Seven tracks, each one a question that kept getting answered. Your AI can read the same story via the <code>get_timeline</code> tool.</p>
     <div class="tl-wrap">
 ${timelineSvg}
