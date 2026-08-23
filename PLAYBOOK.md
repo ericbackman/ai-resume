@@ -30,6 +30,50 @@ head_sampling_rate 1).
 3. `npm run typecheck && npm test` — must pass.
 4. Content changes need Eric's OK (public-facing rule). Then `npm run deploy`.
 
+## Styling — house tokens, no hex
+
+The landing page is a backman-design consumer and ships **all five cottage themes**
+with a visitor-facing picker. `src/tokens.ts` is a **copy** of
+`backman-design/dist/tokens.ts` (birthmark comment intact) — regenerate at the
+source and re-copy, never hand-edit.
+
+- **The site follows the time of day.** `DARK_THEME` (`greatroom`) shows from
+  `DAY_END_HOUR` to `DAY_START_HOUR`; `LIGHT_THEME` shows through the day. The
+  boundaries are 19:00 and 07:00, read from the **visitor's** local clock, so
+  someone opening this from another timezone gets their own evening.
+- **`LIGHT_THEME` is not hardcoded** — it is read from `greatroom`'s declared
+  `lightTwin` in backman-design and asserted to be `windowwall`, so if that pairing
+  ever changes upstream the build fails instead of silently drifting.
+- **Theme selection precedence**: `?theme=<name>` → `localStorage["bd-theme"]` →
+  time of day. A pre-paint inline script applies the result, so neither a stored
+  choice nor the day/night default ever flashes the wrong theme first. Unknown
+  names are ignored, not applied.
+- **The picker's "Auto" button clears the stored choice** and returns the visitor
+  to the time-of-day default; the label then reads `Auto · <theme>`. Time is
+  evaluated on load only — an open tab does not flip underneath the reader.
+- **`themeVars()` emits every value as a LITERAL, computed at build time** — the 12
+  tokens, the card surfaces, the translucent derivatives (`--scrim`, `--wash-a`,
+  `--card-shadow`, …) and the timeline ramp. Do not reintroduce
+  `color-mix(..., transparent)` in the stylesheet: the emitted-literal approach is
+  what makes a live theme switch deterministic, and it is also where the contrast
+  work happens.
+- **`liftForContrast()` walks a hue toward the ink until it clears 4.5:1 against
+  every surface it can land on** (`--bd-ground`, `--surface`, `--raised-surface`).
+  This is measured per theme, not a fixed percentage: a flat 45% lift left
+  greatroom's and windowwall's fifth timeline track at ~4.2:1, and lifting against
+  the ground alone still failed the status badges, which sit on cards.
+- **No hex in the stylesheet.** The timeline's seven track colours come from
+  `categorical()`, which dedupes before extending — ledgestone gives `accent`,
+  `ink-2` and `line-2` all as `#ADB1B6`, and without the dedupe two tracks would
+  silently share a colour.
+
+**Re-verify after any theme or palette change** — load `/?theme=<name>` for each of
+the five and audit contrast. Last run: **0 text failures and 0 SVG-text failures in
+all five themes, 7 distinct track hues each**, `tsc --noEmit` clean, 16/16 tests.
+Note that auditing by flipping `data-theme` in a *hidden* browser tab gives false
+readings: style recalc is deferred there, so used values go stale. Load the page
+fresh per theme instead.
+
 ## Roll back
 
 ```bash
