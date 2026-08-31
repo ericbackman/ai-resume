@@ -1,7 +1,7 @@
-# PLAYBOOK — ericbackman.com (AI-native resume)
+# PLAYBOOK: ericbackman.com (AI-native resume)
 
 **System:** Cloudflare Worker `ai-resume`, custom domains **ericbackman.com**
-(the apex — this IS Eric's homepage since 2026-07-28), www.ericbackman.com
+(the apex, this IS Eric's homepage since 2026-07-28), www.ericbackman.com
 (301 → apex, handled in the worker), and ai.ericbackman.com (the advertised
 MCP connector URL). Stateless, read-only, no bindings, no secrets, no
 scheduled jobs. The previous portfolio (Pages project `portfolio-94i`, repo
@@ -27,7 +27,7 @@ head_sampling_rate 1).
 1. Edit `src/resume-data.ts` (facts) or sync `src/narrative.ts` from the
    canonical draft in job-hunt `resumes/written-by-claude/resume.md`.
 2. Refresh `META.written` if stats were re-verified.
-3. `npm run typecheck && npm test` — must pass.
+3. `npm run typecheck && npm test`: must pass.
 4. Content changes need Eric's OK (public-facing rule). Then `npm run deploy`.
 
 ## Roll back

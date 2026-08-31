@@ -1,4 +1,4 @@
-# ai-resume — AI-native resume MCP server
+# ai-resume: AI-native resume MCP server
 
 Live at **ericbackman.com** (the apex — Eric's homepage), plus www (301 → apex)
 and **ai.ericbackman.com** (the advertised MCP connector URL). Public GitHub
@@ -7,10 +7,10 @@ PLAYBOOK.md before operating or debugging the live worker.
 
 ## What lives where
 
-- `src/mcp.ts` — stateless MCP/JSON-RPC core (pure, unit-tested, no I/O). Don't add an SDK; being dependency-free is part of the pitch.
-- `src/resume-data.ts` — ALL structured content (profile, projects, BMO, skills, gaps). One typed module; landing page and tools both render from it, so they can't drift.
-- `src/narrative.ts` — the Claude-written narrative resume. Canonical draft: job-hunt repo `resumes/written-by-claude/resume.md`. Edit there first, then sync here.
-- `src/tools.ts` / `src/landing.ts` / `src/index.ts` — tool defs, HTML+llms.txt, router.
+- `src/mcp.ts`: stateless MCP/JSON-RPC core (pure, unit-tested, no I/O). Don't add an SDK; being dependency-free is part of the pitch.
+- `src/resume-data.ts`: ALL structured content (profile, projects, BMO, skills, gaps). One typed module; landing page and tools both render from it, so they can't drift.
+- `src/narrative.ts`: the Claude-written narrative resume. Canonical draft: job-hunt repo `resumes/written-by-claude/resume.md`. Edit there first, then sync here.
+- `src/tools.ts` / `src/landing.ts` / `src/index.ts`: tool defs, HTML+llms.txt, router.
 
 ## Rules
 
