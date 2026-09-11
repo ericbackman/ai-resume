@@ -5,8 +5,85 @@
 
 import { PROFILE, META, PROJECTS, WORKSPACE, FEATURED_VIDEOS, TIMELINE, TIMELINE_INTRO, CHANNEL, type Project } from "./resume-data";
 import { buildServerSpec, shortDate } from "./tools";
+import { theme, type ThemeName } from "./tokens";
 
 const MCP_URL = "https://ai.ericbackman.com/mcp";
+
+// ---- house design system ---------------------------------------------------
+// The page is one static string served by the Worker, so every theme is resolved
+// at module scope and emitted as its own [data-theme] block rather than linked as
+// a stylesheet. The visitor picks one; the choice only ever sets an attribute on
+// <html>, so switching costs no request and no repaint beyond the cascade.
+const COTTAGE_THEMES = ["shield", "greatroom", "ledgestone", "drone", "windowwall"] as const;
+type CottageTheme = (typeof COTTAGE_THEMES)[number];
+
+// Eric's designated palettes: greatroom is this site's dark mode, windowwall its
+// light. That pairing is the design system's own, not an invention here --
+// windowwall is greatroom's declared lightTwin -- so the assertion below fails the
+// build if the two ever drift apart upstream.
+const DARK_THEME: CottageTheme = "greatroom";
+const LIGHT_THEME: CottageTheme = (() => {
+  const twin = theme(DARK_THEME as ThemeName).lightTwin;
+  if (twin !== "windowwall") {
+    throw new Error(`expected windowwall as ${DARK_THEME}'s lightTwin, got ${String(twin)}`);
+  }
+  return twin;
+})();
+
+// Local-clock boundaries for the automatic switch: light through the working day,
+// dark in the evening. Read from the visitor's own clock, so someone opening this
+// from another timezone gets their evening, not Toronto's.
+const DAY_START_HOUR = 7;
+const DAY_END_HOUR = 19;
+
+// Serves as the no-JS fallback and as the :root block; the pre-paint script
+// almost always replaces it with the time-appropriate choice.
+const DEFAULT_THEME: CottageTheme = DARK_THEME;
+
+const C = theme(DEFAULT_THEME as ThemeName).colors;
+
+/** Blend two hex colours. t=0 returns a, t=1 returns b. */
+function mix(a: string, b: string, t: number): string {
+  const parse = (h: string): [number, number, number] => {
+    const v = h.replace("#", "");
+    if (!/^[0-9a-fA-F]{6}$/.test(v)) throw new Error(`mix() expects a 6-digit hex, got ${h}`);
+    return [parseInt(v.slice(0, 2), 16), parseInt(v.slice(2, 4), 16), parseInt(v.slice(4, 6), 16)];
+  };
+  const [ar, ag, ab] = parse(a);
+  const [br, bg, bb] = parse(b);
+  const ch = (x: number, y: number) => Math.round(x + (y - x) * t).toString(16).padStart(2, "0");
+  return `#${ch(ar, br)}${ch(ag, bg)}${ch(ab, bb)}`;
+}
+
+/**
+ * n visually distinct colours drawn from the active theme. Tokens can collide
+ * inside a single theme -- ledgestone gives --bd-accent, --bd-ink-2 and
+ * --bd-line-2 all as #ADB1B6 -- so the base set is deduped before it is extended
+ * by stepping each surviving hue toward the ground and then the ink. Without the
+ * dedupe two timeline tracks silently share a colour.
+ */
+type Palette = Readonly<Record<string, string>>;
+
+function categorical(c: Palette, n: number, label: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const push = (v: string | undefined) => {
+    if (!v) return;
+    const k = v.toLowerCase();
+    if (!seen.has(k)) { seen.add(k); out.push(v); }
+  };
+  (["accent", "accent-2", "gain", "warn", "loss", "line", "line-2", "ink-2"] as const).forEach((k) => push(c[k]));
+  const base = out.slice();
+  const ink = c["ink"], ground = c["ground"];
+  if (!ink || !ground) throw new Error(`theme ${label} is missing ink/ground`);
+  for (const t of [0.38, 0.3, 0.6]) {
+    if (out.length >= n) break;
+    const toward = t === 0.3 ? ink : ground;
+    for (const v of base) { if (out.length < n) push(mix(v, toward, t)); }
+  }
+  if (out.length < n) throw new Error(`theme ${label} cannot yield ${n} distinct colours`);
+  return out;
+}
 
 function escapeHtml(s: string): string {
   return s
@@ -96,15 +173,125 @@ const cardsHtml = PROJECTS.map(projectCardHtml).join("\n");
 
 // ---- timeline SVG (dark, JetBrains Mono, generated from TIMELINE) --------
 
-const TL_COLORS: Record<string, string> = {
-  sports: "#2dd4a7",
-  dive: "#58a6ff",
-  bots: "#f778ba",
-  cloudflare: "#f0883e",
-  photos: "#8b949e",
-  agents: "#bc8cff",
-  jobhunt: "#ff7b72",
-};
+// Seven tracks, seven theme-derived hues. Order is fixed so a given track keeps
+// its slot across themes. The SVG references these as var(--tl-N), never as a
+// literal, which is what lets the timeline follow a live theme switch.
+const TL_TRACKS = ["sports", "dive", "bots", "cloudflare", "photos", "agents", "jobhunt"] as const;
+const TL_INDEX: Record<string, number> = Object.fromEntries(TL_TRACKS.map((k, i) => [k, i]));
+
+/** Relative luminance, WCAG 2.1. */
+function luminance(hex: string): number {
+  const v = hex.replace("#", "");
+  const ch = (i: number) => {
+    const x = parseInt(v.slice(i, i + 2), 16) / 255;
+    return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * ch(0) + 0.7152 * ch(2) + 0.0722 * ch(4);
+}
+
+function contrast(a: string, b: string): number {
+  const la = luminance(a), lb = luminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
+/**
+ * Walk a hue toward the ink until it clears `target` against EVERY background it
+ * can land on. Two things this guards against, both found by measuring rather
+ * than reasoning: a fixed 45% lift leaves greatroom's and windowwall's fifth
+ * timeline track at 4.2:1, and lifting against the ground alone still fails on
+ * cards, because --surface is a different luminance from --ground in every theme.
+ */
+function liftForContrast(hue: string, ink: string, grounds: string[], target = 4.5): string {
+  for (let t = 0.25; t <= 0.95; t += 0.05) {
+    const c = mix(hue, ink, t);
+    if (grounds.every((bg) => contrast(c, bg) >= target)) return c;
+  }
+  return ink;
+}
+
+/** `#rrggbb` at an alpha, as a literal rgba() -- see the note on themeVars(). */
+function alpha(hex: string, a: number): string {
+  const v = hex.replace("#", "");
+  const ch = (i: number) => parseInt(v.slice(i, i + 2), 16);
+  return `rgba(${ch(0)}, ${ch(2)}, ${ch(4)}, ${a})`;
+}
+
+/**
+ * Every custom property for one theme.
+ *
+ * Everything here is a LITERAL value, computed at build time. That is
+ * deliberate: Chrome does not re-resolve `color-mix(..., transparent)` when a
+ * custom property it depends on changes, so a translucent tint written that way
+ * freezes at whatever the theme was on first paint and never follows a live
+ * switch. (Two-token `color-mix(a, b)` does invalidate correctly -- only the
+ * `transparent` keyword form is stuck.) Emitting concrete values sidesteps the
+ * whole class of bug, because swapping a plain custom property always works.
+ */
+function themeVars(name: CottageTheme): string {
+  const c = theme(name as ThemeName).colors as Palette;
+  const ink = c["ink"], ground = c["ground"], panel = c["panel"], raised = c["raised"];
+  const accent = c["accent"], accent2 = c["accent-2"], gain = c["gain"];
+  if (!ink || !ground || !panel || !raised || !accent || !accent2 || !gain) {
+    throw new Error(`theme ${name} is missing a contract token`);
+  }
+  const parts = Object.entries(c).map(([k, v]) => `--bd-${k}:${v};`);
+
+  // Card surfaces sit between panel and ground: a full --bd-panel fill puts
+  // --bd-ink-2 under 4.5:1 in six of the seven themes, which the house gate
+  // misses because it only ever tests against ground.
+  const surface = mix(panel, ground, 0.68);
+  const raisedSurface = mix(raised, ground, 0.62);
+  parts.push(`--surface:${surface};`);
+  parts.push(`--raised-surface:${raisedSurface};`);
+  parts.push(`--bar-bg:${mix(panel, ground, 0.58)};`);
+
+  // Hues that cannot carry small text on their own, lifted until they can. These
+  // land on cards as well as on the page, so both surfaces are in the target set.
+  const textOn = [ground, surface, raisedSurface];
+  parts.push(`--green-ink:${liftForContrast(gain, ink, textOn)};`);
+  parts.push(`--cyan-ink:${liftForContrast(accent2, ink, textOn)};`);
+  parts.push(`--violet-ink:${liftForContrast(accent2, ink, textOn)};`);
+
+  // Translucent derivatives.
+  parts.push(`--border-glow:${alpha(accent, 0.55)};`);
+  parts.push(`--wash-a:${alpha(accent, 0.14)};`);
+  parts.push(`--wash-b:${alpha(accent2, 0.12)};`);
+  parts.push(`--glow-ring:${alpha(accent, 0.12)};`);
+  parts.push(`--glow-soft:${alpha(accent, 0.1)};`);
+  parts.push(`--chip-active:${alpha(accent, 0.22)};`);
+  parts.push(`--card-shadow:${alpha(ground, 0.7)};`);
+  parts.push(`--bar-shadow:${alpha(ground, 0.5)};`);
+  parts.push(`--scrim:${alpha(ground, 0.78)};`);
+  parts.push(`--scrim-strong:${alpha(ground, 0.9)};`);
+  parts.push(`--hairline:${alpha(ink, 0.55)};`);
+  parts.push(`--play-hover:${alpha(accent, 0.82)};`);
+
+  categorical(c, TL_TRACKS.length, name).forEach((hue, i) => {
+    parts.push(`--tl-${i}:${hue};`);
+    parts.push(`--tl-label-${i}:${liftForContrast(hue, ink, [ground])};`);
+  });
+  return parts.join(" ");
+}
+
+// :root carries the default so an un-stamped page is still fully styled.
+const THEME_CSS = [
+  `:root { ${themeVars(DEFAULT_THEME)} }`,
+  ...COTTAGE_THEMES.map((t) => `[data-theme="${t}"] { ${themeVars(t)} }`),
+].join("\n  ");
+
+// Swatches must show each theme's own colours while a different theme is active,
+// so they carry literal values -- taken from the design system, never invented.
+const THEME_SWATCHES = COTTAGE_THEMES.map((t) => {
+  const c = theme(t as ThemeName).colors as Palette;
+  return {
+    name: t,
+    label: theme(t as ThemeName).label,
+    mode: theme(t as ThemeName).mode,
+    ground: c["ground"] ?? "#000000",
+    panel: c["panel"] ?? "#000000",
+    accent: c["accent"] ?? "#000000",
+  };
+});
 
 const TL_X0 = 150;
 const TL_X1 = 960;
@@ -130,15 +317,17 @@ function buildTimelineSvg(): string {
     const x = tlX(`2026-0${m + 1}-01`);
     const label = ["Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"][m - 1];
     parts.push(
-      `<line x1="${x}" y1="72" x2="${x}" y2="${bottom}" stroke="#30363d" stroke-width="1" stroke-dasharray="2,5"/>`,
-      `<text x="${x}" y="58" font-size="12" fill="#8b949e" text-anchor="middle">${label}</text>`,
+      `<line x1="${x}" y1="72" x2="${x}" y2="${bottom}" stroke="var(--bd-line)" stroke-width="1" stroke-dasharray="2,5"/>`,
+      `<text x="${x}" y="58" font-size="12" fill="var(--bd-ink-2)" text-anchor="middle">${label}</text>`,
     );
   }
   TIMELINE.forEach((track, i) => {
     const y = laneTop + i * pitch;
-    const color = TL_COLORS[track.key] ?? "#8b949e";
+    const slot = TL_INDEX[track.key] ?? i;
+    const color = `var(--tl-${slot})`;
+    const labelColor = `var(--tl-label-${slot})`;
     parts.push(
-      `<text x="10" y="${y + 4}" font-size="14" font-weight="700" fill="${color}">${escapeHtml(track.name)}</text>`,
+      `<text x="10" y="${y + 4}" font-size="14" font-weight="700" fill="${labelColor}">${escapeHtml(track.name)}</text>`,
       `<line x1="${TL_X0}" y1="${y}" x2="${TL_X1}" y2="${y}" stroke="${color}" stroke-width="1" opacity="0.5"/>`,
     );
     for (const e of track.events) {
@@ -147,10 +336,10 @@ function buildTimelineSvg(): string {
       const anchor = e.anchor === "end" ? `x="${TL_X1}" text-anchor="end"` : `x="${x}" text-anchor="middle"`;
       parts.push(`<circle cx="${x}" cy="${y}" r="4.5" fill="${color}"/>`);
       if (e.row === "below2") {
-        parts.push(`<line x1="${x}" y1="${y + 6}" x2="${x}" y2="${labelY - 10}" stroke="#484f58" stroke-width="1" stroke-dasharray="2,3"/>`);
+        parts.push(`<line x1="${x}" y1="${y + 6}" x2="${x}" y2="${labelY - 10}" stroke="var(--bd-line)" stroke-width="1" stroke-dasharray="2,3"/>`);
       }
       parts.push(
-        `<text ${anchor} y="${labelY}" font-size="12" fill="#e6edf3">${escapeHtml(e.label)} <tspan fill="#8b949e">· ${escapeHtml(shortDate(e.date))}</tspan></text>`,
+        `<text ${anchor} y="${labelY}" font-size="12" fill="var(--bd-ink)">${escapeHtml(e.label)} <tspan fill="var(--bd-ink-2)">· ${escapeHtml(shortDate(e.date))}</tspan></text>`,
       );
     }
   });
@@ -173,7 +362,7 @@ const videoWallHtml = FEATURED_VIDEOS.map((v) => {
 // ---- the page -------------------------------------------------------------
 
 export const LANDING_HTML = `<!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="${DEFAULT_THEME}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -182,11 +371,47 @@ export const LANDING_HTML = `<!doctype html>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<script>
+  // Runs before first paint, so neither a stored choice nor the day/night default
+  // ever flashes the wrong theme first.
+  (function () {
+    var ok = ${JSON.stringify(COTTAGE_THEMES)};
+    var DARK = ${JSON.stringify(DARK_THEME)}, LIGHT = ${JSON.stringify(LIGHT_THEME)};
+    var DAY_START = ${DAY_START_HOUR}, DAY_END = ${DAY_END_HOUR};
+
+    // Time of day on the VISITOR's clock, not the server's.
+    function auto() {
+      var h = new Date().getHours();
+      return h >= DAY_START && h < DAY_END ? LIGHT : DARK;
+    }
+
+    var picked = null;
+    try {
+      picked = new URLSearchParams(location.search).get("theme") || localStorage.getItem("bd-theme");
+    } catch (e) { /* private mode or a blocked URL API: fall through to auto */ }
+
+    var explicit = !!picked && ok.indexOf(picked) !== -1;
+    document.documentElement.setAttribute("data-theme", explicit ? picked : auto());
+
+    // Handed to the picker below so the two share one definition of "auto".
+    window.__bdTheme = { ok: ok, auto: auto, isExplicit: explicit };
+  })();
+</script>
 <style>
+  /* backman-design tokens, emitted from src/tokens.ts -- one block per theme */
+  ${THEME_CSS}
+  /* Local semantic names map onto those tokens -- no raw hex below this line.
+     --panel is mixed back toward the ground because the house contrast gate only
+     tests ink against --bd-ground: at full --bd-panel strength, --muted secondary
+     text lands under 4.5:1 in six of the seven themes. */
   :root {
-    --bg:#0d1117; --panel:#161b22; --panel-2:#1c2330; --text:#e6edf3; --muted:#8b949e;
-    --accent:#58a6ff; --violet:#bc8cff; --green:#3fb950; --cyan:#39c5cf;
-    --border:#30363d; --border-glow:rgba(88,166,255,.35);
+    --bg:var(--bd-ground);
+    --panel:var(--surface);
+    --panel-2:var(--raised-surface);
+    --text:var(--bd-ink); --muted:var(--bd-ink-2);
+    --accent:var(--bd-accent); --violet:var(--bd-accent-2);
+    --green:var(--bd-gain); --cyan:var(--bd-accent-2);
+    --border:var(--bd-line);
   }
   * { box-sizing:border-box; }
   html { scroll-behavior:smooth; }
@@ -195,8 +420,8 @@ export const LANDING_HTML = `<!doctype html>
     font-family:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     line-height:1.6; font-size:15px;
     background-image:
-      radial-gradient(ellipse 60% 40% at 70% -10%, rgba(88,166,255,.13), transparent),
-      radial-gradient(ellipse 50% 35% at 15% 5%, rgba(188,140,255,.09), transparent);
+      radial-gradient(ellipse 60% 40% at 70% -10%, var(--wash-a), transparent),
+      radial-gradient(ellipse 50% 35% at 15% 5%, var(--wash-b), transparent);
     background-repeat:no-repeat;
   }
   main { max-width:1020px; margin:0 auto; padding:56px 20px 90px; }
@@ -222,22 +447,22 @@ export const LANDING_HTML = `<!doctype html>
 
   /* terminal / playground */
   .term {
-    background:#0a0e14; border:1px solid var(--border); border-radius:12px; overflow:hidden;
-    box-shadow:0 0 0 1px rgba(88,166,255,.06), 0 0 42px rgba(88,166,255,.07);
+    background:var(--bd-ground); border:1px solid var(--border); border-radius:12px; overflow:hidden;
+    box-shadow:0 0 0 1px var(--glow-ring), 0 0 42px var(--glow-soft);
   }
   .term-bar { display:flex; align-items:center; gap:8px; padding:10px 14px; background:var(--panel); border-bottom:1px solid var(--border); }
   .term-bar .b { width:11px; height:11px; border-radius:50%; opacity:.85; }
   .term-title { margin-left:6px; color:var(--muted); font-size:12.5px; }
   .term-out { padding:16px 18px; min-height:280px; max-height:460px; overflow-y:auto; font-size:13.5px; }
-  .t-req { color:var(--cyan); white-space:pre-wrap; word-break:break-word; }
+  .t-req { color:var(--cyan-ink); white-space:pre-wrap; word-break:break-word; }
   .t-req::before { content:"▸ "; color:var(--muted); }
-  .t-h1 { color:var(--violet); font-weight:700; margin-top:10px; }
+  .t-h1 { color:var(--violet-ink); font-weight:700; margin-top:10px; }
   .t-h2 { color:var(--accent); font-weight:700; margin-top:10px; }
   .t-li { padding-left:18px; text-indent:-14px; }
   .t-li::before { content:"– "; color:var(--accent); }
   .t-p { white-space:pre-wrap; word-break:break-word; }
   .t-dim { color:var(--muted); }
-  .t-err { color:#f85149; }
+  .t-err { color:color-mix(in srgb, var(--bd-loss) 55%, var(--bd-ink)); }
   .cursor { display:inline-block; width:8px; height:15px; background:var(--accent); vertical-align:text-bottom; animation:blink 1s steps(1) infinite; }
   @keyframes blink { 50% { opacity:0; } }
   .chips { display:flex; flex-wrap:wrap; gap:8px; padding:12px 14px; border-top:1px solid var(--border); background:var(--panel); }
@@ -246,7 +471,7 @@ export const LANDING_HTML = `<!doctype html>
     border:1px solid var(--border); border-radius:999px; padding:5px 12px; cursor:pointer;
   }
   .chip:hover { border-color:var(--accent); }
-  .chip.active { border-color:var(--accent); background:rgba(88,166,255,.12); }
+  .chip.active { border-color:var(--accent); background:var(--chip-active); }
   .chip:focus-visible, .card:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 
   /* system map */
@@ -256,7 +481,7 @@ export const LANDING_HTML = `<!doctype html>
     background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:14px 16px;
     cursor:pointer; transition:transform .12s ease, border-color .12s ease, box-shadow .12s ease;
   }
-  .card:hover { transform:translateY(-2px); border-color:var(--border-glow); box-shadow:0 4px 24px rgba(0,0,0,.35); }
+  .card:hover { transform:translateY(-2px); border-color:var(--border-glow); box-shadow:0 4px 24px var(--card-shadow); }
   .card.hidden { display:none; }
   .card-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
   .card h3 { margin:0 0 4px; font-size:15px; }
@@ -269,9 +494,9 @@ export const LANDING_HTML = `<!doctype html>
   .status { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:var(--muted); }
   .status .dot { width:7px; height:7px; border-radius:50%; }
   .status-live .dot { background:var(--green); box-shadow:0 0 6px var(--green); animation:pulse 2.4s ease-in-out infinite; }
-  .status-live { color:var(--green); }
+  .status-live { color:var(--green-ink); }
   .status-scheduled .dot { background:var(--cyan); }
-  .status-scheduled { color:var(--cyan); }
+  .status-scheduled { color:var(--cyan-ink); }
   .status-complete .dot { background:var(--muted); }
   @keyframes pulse { 50% { opacity:.45; } }
 
@@ -296,13 +521,13 @@ export const LANDING_HTML = `<!doctype html>
   .vid-play {
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
     width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-    background:rgba(10,14,20,.62); border:1px solid rgba(230,237,243,.45); color:#fff; font-size:16px;
+    background:var(--scrim); border:1px solid var(--hairline); color:var(--bd-ink); font-size:16px;
     padding-left:4px; transition:background .2s ease;
   }
-  .vid:hover .vid-play { background:rgba(88,166,255,.75); }
+  .vid:hover .vid-play { background:var(--play-hover); }
   .vid-title {
-    position:absolute; left:0; right:0; bottom:0; padding:26px 10px 9px; font-size:12px; color:#fff;
-    background:linear-gradient(transparent, rgba(4,8,14,.85));
+    position:absolute; left:0; right:0; bottom:0; padding:26px 10px 9px; font-size:12px; color:var(--bd-ink);
+    background:linear-gradient(transparent, var(--scrim-strong));
   }
   @media (max-width:640px) {
     .vid-wall { grid-template-columns:repeat(2, 1fr); }
@@ -324,6 +549,38 @@ export const LANDING_HTML = `<!doctype html>
   }
   footer { margin-top:64px; color:var(--muted); font-size:13px; border-top:1px solid var(--border); padding-top:18px; }
 
+  /* theme picker */
+  .themebar {
+    position:fixed; top:12px; right:12px; z-index:50; display:flex; align-items:center; gap:8px;
+    background:var(--bar-bg);
+    border:1px solid var(--border); border-radius:999px; padding:6px 10px 6px 12px;
+    box-shadow:0 2px 14px var(--bar-shadow);
+  }
+  .themebar-auto {
+    font:inherit; font-size:11px; letter-spacing:.07em; text-transform:uppercase;
+    color:var(--text); background:transparent; border:1px solid var(--border);
+    border-radius:999px; padding:3px 9px; cursor:pointer;
+  }
+  .themebar-auto[aria-pressed="true"] { background:var(--chip-active); border-color:var(--bd-accent); }
+  .themebar-auto:focus-visible { outline:2px solid var(--bd-ink); outline-offset:3px; }
+  .themebar-sw { display:flex; gap:5px; }
+  .sw {
+    width:24px; height:24px; border-radius:50%; cursor:pointer; padding:0;
+    border:1px solid var(--border); position:relative; overflow:hidden;
+  }
+  /* Each swatch shows its OWN theme: ground on the left, accent on the right. */
+  .sw i { position:absolute; inset:0; display:block; }
+  .sw i.b { left:50%; }
+  .sw:hover { transform:scale(1.12); }
+  .sw[aria-pressed="true"] { box-shadow:0 0 0 2px var(--bd-ground), 0 0 0 4px var(--bd-ink); }
+  .sw:focus-visible { outline:2px solid var(--bd-ink); outline-offset:3px; }
+  .themebar-name { font-size:11.5px; color:var(--muted); min-width:74px; }
+  @media (prefers-reduced-motion: reduce) { .sw:hover { transform:none; } }
+  @media (max-width:720px) {
+    .themebar { top:auto; bottom:10px; right:10px; left:10px; justify-content:center; border-radius:14px; }
+    .themebar-name { display:none; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior:auto; }
     .status-live .dot, .cursor { animation:none; }
@@ -332,6 +589,18 @@ export const LANDING_HTML = `<!doctype html>
 </style>
 </head>
 <body>
+<nav class="themebar" aria-label="Colour theme">
+  <button class="themebar-auto" data-theme-auto type="button" aria-pressed="true"
+    title="Follow the time of day: light ${DAY_START_HOUR}:00-${DAY_END_HOUR}:00, dark otherwise"
+    aria-label="Automatic theme, following the time of day">Auto</button>
+  <span class="themebar-sw">
+    ${THEME_SWATCHES.map((t) => `<button class="sw" data-theme-pick="${escapeHtml(t.name)}" type="button"
+      aria-pressed="${t.name === DEFAULT_THEME ? "true" : "false"}"
+      title="${escapeHtml(t.label)} (${escapeHtml(t.mode)})" aria-label="${escapeHtml(t.label)} theme, ${escapeHtml(t.mode)}"
+      ><i style="background:${escapeHtml(t.ground)}"></i><i class="b" style="background:${escapeHtml(t.accent)}"></i></button>`).join("\n    ")}
+  </span>
+  <span class="themebar-name" id="themeName">${escapeHtml(THEME_SWATCHES.find((t) => t.name === DEFAULT_THEME)?.label ?? "")}</span>
+</nav>
 <main>
   <header>
     <div class="eyebrow">an AI-native resume</div>
@@ -349,7 +618,7 @@ ${statTilesHtml}
     <p class="section-note">This terminal talks to the real MCP endpoint on this domain. Click a tool. What your AI assistant would see is exactly what you'll see.</p>
     <div class="term">
       <div class="term-bar">
-        <span class="b" style="background:#ff5f57"></span><span class="b" style="background:#febc2e"></span><span class="b" style="background:#28c840"></span>
+        <span class="b" style="background:var(--bd-loss)"></span><span class="b" style="background:var(--bd-warn)"></span><span class="b" style="background:var(--bd-gain)"></span>
         <span class="term-title">POST ${MCP_URL} · JSON-RPC 2.0 · no auth</span>
       </div>
       <div class="term-out" id="term-out" aria-live="polite"></div>
@@ -531,6 +800,46 @@ then tell me whether Eric fits this role: [paste the job description]</code></pr
       cards[j].classList.toggle("hidden", key !== "all" && tags.indexOf(key) === -1);
     }
   });
+
+  // ---- theme picker -------------------------------------------------------
+  // Switching only sets an attribute on <html>; every colour on the page is a
+  // custom property, so the whole document (timeline SVG included) follows the
+  // cascade with no re-render and no refetch.
+  var THEME_LABELS = ${JSON.stringify(Object.fromEntries(THEME_SWATCHES.map((t) => [t.name, t.label])))};
+  var themeName = document.getElementById("themeName");
+  var autoBtn = document.querySelector("[data-theme-auto]");
+  var bd = window.__bdTheme || { auto: function () { return ${JSON.stringify(DEFAULT_THEME)}; }, isExplicit: false };
+
+  function paint(name, isAuto) {
+    if (!THEME_LABELS[name]) return;
+    document.documentElement.setAttribute("data-theme", name);
+    if (themeName) themeName.textContent = isAuto ? "Auto · " + THEME_LABELS[name] : THEME_LABELS[name];
+    var picks = document.querySelectorAll("[data-theme-pick]");
+    for (var i = 0; i < picks.length; i++) {
+      picks[i].setAttribute("aria-pressed", !isAuto && picks[i].getAttribute("data-theme-pick") === name ? "true" : "false");
+    }
+    if (autoBtn) autoBtn.setAttribute("aria-pressed", isAuto ? "true" : "false");
+  }
+
+  function choose(name) {
+    paint(name, false);
+    try { localStorage.setItem("bd-theme", name); } catch (e) { /* private mode: session only */ }
+  }
+
+  function useAuto() {
+    try { localStorage.removeItem("bd-theme"); } catch (e) { /* nothing stored to clear */ }
+    paint(bd.auto(), true);
+  }
+
+  document.addEventListener("click", function (ev) {
+    if (!ev.target.closest) return;
+    if (ev.target.closest("[data-theme-auto]")) { useAuto(); return; }
+    var btn = ev.target.closest("[data-theme-pick]");
+    if (btn) choose(btn.getAttribute("data-theme-pick"));
+  });
+
+  // Re-sync label and pressed state with whatever the pre-paint script decided.
+  paint(document.documentElement.getAttribute("data-theme") || ${JSON.stringify(DEFAULT_THEME)}, !bd.isExplicit);
 
   // Opening demo: the server introduces itself.
   callTool("about", {});
