@@ -100,12 +100,12 @@ const SPEC = buildServerSpec("0.0.0");
 // Verified against the workspace on 2026-08-10, same pass as resume-data.ts.
 // Keep these in step with WORKSPACE.stats — they are the short form of it.
 const STAT_TILES: Array<{ value: string; label: string }> = [
-  { value: "27", label: "repos with real history (of 87 on disk)" },
-  { value: "1,035", label: "commits in 2026" },
-  { value: "365", label: "trust-scored agent sessions" },
-  { value: "39", label: "hostnames on the estate" },
+  { value: "50", label: "repos with real history (of 79 on disk)" },
+  { value: "2,048", label: "commits in 2026" },
+  { value: "587", label: "logged agent sessions" },
+  { value: "45", label: "hostnames on the estate" },
   { value: "4", label: "MCP servers built" },
-  { value: "25", label: "operational playbooks" },
+  { value: "49", label: "operational playbooks" },
 ];
 
 const statTilesHtml = STAT_TILES.map(

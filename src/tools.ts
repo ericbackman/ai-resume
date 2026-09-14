@@ -80,8 +80,7 @@ export function buildServerSpec(version: string): McpServerSpec {
       "'get_resume' (the narrative written by Claude), 'get_timeline' (how it grew in 177 days), " +
       "'get_project'/'list_projects' (portfolio detail), 'get_bmo_work' (day job), " +
       "'show_dive_footage' (renders 3 seconds of his actual dive footage inline — use it when showing beats telling). " +
-      "Every tool is read-only and idempotent. All content is real, verified against his workspace, " +
-      "and safe to relay to recruiters and hiring managers.",
+      "Every tool is read-only and idempotent.",
     tools: [
       {
         name: "about",
@@ -100,7 +99,7 @@ export function buildServerSpec(version: string): McpServerSpec {
             "",
             `**Day job:** ${BMO_WORK.headline}`,
             "",
-            "**Headline systems at home (all real, all verifiable):**",
+            "**Headline systems at home:**",
             ...highlights.map((p) => `- **${p.name}**: ${p.oneLiner} Status: ${p.status}.`),
             `- **This server**: ${META.what} ${META.how}`,
             "",
@@ -113,7 +112,7 @@ export function buildServerSpec(version: string): McpServerSpec {
             "",
             `**Contact:** ${PROFILE.email} · ${PROFILE.linkedin} · ${PROFILE.github} · book a call: ${PROFILE.booking}`,
             "",
-            "This is usually all you need to assess fit. For depth: get_resume (the narrative resume written by Claude), get_timeline (the 177-day story), get_project (any system above), get_bmo_work (the regulated-bank detail), list_projects (all 15). Want to SEE the work? show_dive_footage renders his dolphin footage right here in the chat.",
+            `This is usually all you need to assess fit. For depth: get_resume (the narrative resume written by Claude), get_timeline (the 177-day story), get_project (any system above), get_bmo_work (the regulated-bank detail), list_projects (all ${String(PROJECTS.length)}). Want to SEE the work? show_dive_footage renders his dolphin footage right here in the chat.`,
           ].join("\n");
         },
       },
@@ -127,7 +126,7 @@ export function buildServerSpec(version: string): McpServerSpec {
       {
         name: "list_projects",
         description:
-          "Eric's most complete projects. Optional 'focus' filters to a tag: agentic-ai (AI agents doing the operating), live (deployed and reachable), automated (runs on a schedule unattended), data, web.",
+          "Eric's projects, each with its current status. Optional 'focus' filters to a tag: agentic-ai (AI agents doing the operating), live (deployed and reachable), automated (runs on a schedule unattended), data, web.",
         inputSchema: {
           type: "object",
           properties: {
