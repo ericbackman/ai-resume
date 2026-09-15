@@ -97,6 +97,18 @@ npx wrangler rollback        # interactive: pick the previous deployment
   Turning BFM off is a zone-level security decision — Eric's call, and it
   affects every other subdomain on the zone.
 
+## Maintenance log
+
+- **2026-09-14:** content accuracy refresh (PR #2, version `ccbc2e8d`). Four simulated
+  recruiter assistants read only this server first; the skeptic's top finding was the
+  2022-2025 "agentic AI lab" entry contradicting `get_timeline`. Replaced with the approved
+  career break, surfaced the 5.5h to 1.5h desk metric in `get_bmo_work`, recounted every
+  figure (sources in job-hunt `resumes/facts.md`, "Recount 2026-09-14"), and added two
+  regression tests. Verified live by probing `about`, `get_experience`, `get_bmo_work`,
+  `get_skills_and_gaps`, `/resume.md` and the landing page for the changed strings.
+  **Re-validate the same way after any content change:** a fresh-context agent that sees
+  only the live MCP catches contradictions between tools that no single-file review does.
+
 ## Escalation
 
 Model tiering: any tier may run the health check and rollback; content edits and
