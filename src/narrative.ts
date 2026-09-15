@@ -66,7 +66,7 @@ I would say he treats me like an engineering system, not a magic trick. He gives
 
 **Skills**
 
-- **Languages:** Python, SQL, TypeScript, Java, Bash, JavaScript
+- **Languages:** Python, SQL, TypeScript/JavaScript, Java, Bash, PowerShell
 - **AI:** Claude Code, Claude API and SDK, MCP server design (FastMCP), multi-agent orchestration, evaluation and human-review gates
 - **Data:** BigQuery, Apache Beam, Airflow, PostgreSQL, SQLite, Docker
 - **Cloud:** GCP (Cloud Functions, Pub/Sub, Dataflow), Cloudflare Workers
