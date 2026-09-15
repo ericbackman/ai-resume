@@ -1,6 +1,7 @@
 // All resume content, in one place. Every number here was pulled from the
 // workspace it describes (commit logs, config files, operations registries,
-// and the data files themselves — never READMEs, which drift) on 2026-08-10.
+// and the data files themselves — never READMEs, which drift). First pulled
+// 2026-08-10; workspace, session, channel and project figures re-counted 2026-09-14.
 // Update this file, redeploy, done.
 
 export const PROFILE = {
@@ -23,8 +24,8 @@ export const PROFILE = {
 export const CHANNEL = {
   handle: "@scubasessions",
   url: "https://youtube.com/@scubasessions",
-  videosPublic: 90,
-  views: 93220,
+  videosPublic: 130,
+  views: 130055,
 };
 
 export interface Part {
@@ -49,7 +50,8 @@ export interface Project {
   detail?: string[];
 }
 
-// Curated to the most complete systems, verified against their own data files.
+// Curated to the systems with the most to show, each carrying its honest status,
+// verified against their own data files.
 // Tag "agentic-ai" marks projects where AI agents do the operating, not just
 // the authoring. Access-gated personal tools are deliberately not listed.
 export const PROJECTS: Project[] = [
@@ -77,7 +79,7 @@ export const PROJECTS: Project[] = [
       `${CHANNEL.videosPublic} videos public`,
       `${CHANNEL.views.toLocaleString("en-US")} channel views`,
       "500 source clips catalogued",
-      "217-entry publish queue",
+      "264-entry publish queue",
     ],
     tags: ["agentic-ai", "automated", "live"],
     url: CHANNEL.url,
@@ -98,15 +100,15 @@ export const PROJECTS: Project[] = [
   {
     slug: "agent-audit",
     name: "Agent reliability dashboard",
-    oneLiner: "Scores every logged Claude Code session on how far it ran unattended.",
+    oneLiner: "Logs every Claude Code session and trust-scores the rated ones on how far they ran unattended.",
     description:
       "A global Stop hook logs every session; the dashboard turns the generation-to-verification loop into a 0-to-100 trust score. A needed human correction hard-caps a session at 60, because stepping in at all proves it wasn't safe to run alone. After a silent 8-day deploy freeze, the page gained a staleness guard so a frozen dashboard flags its own age instead of failing quietly. It now also reads each session's transcript to attribute work to the model that did it, and compares models only within a complexity band.",
     status: "Live at loop.ericbackman.com, private behind Cloudflare Access, refreshed weekly by a scheduled job",
     tech: ["Python (stdlib, tested)", "Cloudflare Workers", "Cloudflare Access", "hand-rolled SVG charts"],
     numbers: [
-      "365 logged sessions across 47 projects",
-      "33,137 tool calls and 7,479 files changed measured",
-      "average trust 81/100, correction rate 0.21",
+      "587 logged sessions across 62 projects",
+      "65,635 tool calls and 13,414 files changed measured",
+      "157 rated sessions: average trust 81/100, correction rate 0.21",
     ],
     tags: ["agentic-ai", "live", "automated"],
     detail: [
@@ -177,7 +179,7 @@ export const PROJECTS: Project[] = [
       "UCP is the emerging standard for telling AI shopping agents what a store sells and how to buy it. This tool fetches a shop's published profile, validates it against the official schemas, probes the MCP endpoint that profile declares, and prints a conformance report. Point it at a list of domains and it emits a dataset instead. The transport probe is read-only by construction: it sends a tool listing and nothing else, never builds a cart, never touches checkout.",
     status: "v0.2, with a live health monitor on a 15-minute cron",
     tech: ["Python (tested)", "JSON Schema", "MCP", "Cloudflare Workers"],
-    numbers: ["228 tests", "19 storefronts surveyed, 14 serving a valid profile", "all 14 still exposed to a sunsetting endpoint"],
+    numbers: ["246 tests", "19 storefronts surveyed, 14 serving a valid profile", "all 14 still exposed to a sunsetting endpoint"],
     tags: ["agentic-ai", "data", "live"],
     parts: [
       { name: "profile validator", note: "checks both business and agent profiles against the official schemas, vendored and dated" },
@@ -267,17 +269,17 @@ export const PROJECTS: Project[] = [
     name: "Job-hunt operating system",
     oneLiner: "The job search itself, run as an agentic system.",
     description:
-      "A daily watcher sweeps 22 company career boards and 6 public job aggregators, diffing postings by ATS id, with an independent liveness watchdog alerting if either half goes stale. A reconciler agent reads Gmail and keeps the application tracker honest. A fresh-context reviewer agent audits every resume against a checklist distilled from a post-mortem of 4 fast rejections. This MCP server is the newest module.",
+      "A daily watcher sweeps 33 company career boards and 6 public job aggregators, diffing postings by ATS id, with an independent liveness watchdog alerting if either half goes stale. A reconciler agent reads Gmail and keeps the application tracker honest. A fresh-context reviewer agent audits every resume against a checklist distilled from a post-mortem of 4 fast rejections. This MCP server is the newest module.",
     status: "Live, daily scheduled sweep plus watchdog",
     tech: ["Node.js", "Claude subagents", "ATS JSON APIs", "Gmail"],
-    numbers: ["28 job sources swept daily", "4 purpose-built subagents"],
+    numbers: ["39 job sources swept daily", "4 purpose-built subagents"],
     tags: ["agentic-ai", "automated"],
     parts: [
       { name: "role-scout", note: "sources roles and live-verifies each posting against the ATS JSON API" },
       { name: "tracker-reconciler", note: "reads Gmail, classifies confirmations and rejections, keeps the tracker honest" },
       { name: "resume-tailor", note: "re-angles bullets to what a role actually screens for" },
       { name: "voice-ats-reviewer", note: "fresh-context gate: voice + ATS check before any PDF renders" },
-      { name: "daily-jobs-watch", note: "9:01 sweep of 22 company boards and 6 aggregators, diffing on stable ATS posting ids" },
+      { name: "daily-jobs-watch", note: "9:01 sweep of 33 company boards and 6 aggregators, diffing on stable ATS posting ids" },
       { name: "liveness watchdog", note: "independent daily check that alerts if either half of the sweep goes stale" },
     ],
     detail: [
@@ -395,14 +397,14 @@ export const WORKSPACE = {
   headline:
     "An agentic workspace where Claude Code operates with real responsibility behind engineered guardrails.",
   stats: [
-    "27 repositories with substantial history (10+ commits), 24 of them active in the last 30 days. 87 sit on disk in total; the rest are experiments and dead ends, counted honestly.",
-    "1,035 commits across the workspace so far in 2026",
-    "39 hostnames under ericbackman.com, 13 public and the rest closed behind Cloudflare Access",
-    "365 logged agent sessions across 47 projects: 33,137 tool calls, 7,479 files changed, every session trust-scored",
-    "22 custom subagents with narrow jobs and scoped tools",
-    "202 memory files across 18 projects, carrying corrections between sessions",
-    "25 operational playbooks, one per live system",
-    "22 scheduled jobs across three tiers, 16 of them through one retry/log/alert wrapper",
+    "50 repositories with substantial history (10+ commits), 49 of them active in the last 30 days. 79 sit on disk in total; the rest are experiments and dead ends, counted honestly.",
+    "2,048 commits across the workspace so far in 2026",
+    "45 hostnames under ericbackman.com: 14 public, 30 closed behind Cloudflare Access, 1 redirect",
+    "587 logged agent sessions across 62 projects: 65,635 tool calls and 13,414 files changed, with the 157 rated sessions trust-scored",
+    "29 custom subagents across the workspace (10 global, 19 project-level), each with a narrow job and scoped tools",
+    "277 memory files across 23 projects, carrying corrections between sessions",
+    "49 operational playbooks, one per live or scheduled system",
+    "31 scheduled Windows jobs, every one through the same retry/log/alert wrapper, plus 5 timers on an always-on home server",
     "4 MCP servers built: YouTube operations, sports databases, personal data platform, and this resume",
   ],
   principles: [
@@ -411,7 +413,7 @@ export const WORKSPACE = {
     "Fresh-context review before anything ships, because an author is blind to its own tells.",
     "Rule of two: the second time a pattern is built in a different repo, it is promoted to one canonical home with a tracked consumer list. Clones carry a birthmark comment naming their source.",
     "Auto-commit hooks stage tracked files only, so a stray secret can never land in git. A leak scanner runs before every commit.",
-    "Trust is measured, not assumed: a dashboard scores each session 0-100 on how far it ran unattended, and a needed human correction caps it at 60.",
+    "Trust is measured, not assumed: a dashboard scores each rated session 0-100 on how far it ran unattended, and a needed human correction caps it at 60.",
     "Numbers come from data files, not READMEs: READMEs drift, data doesn't.",
   ],
 };
@@ -419,8 +421,10 @@ export const WORKSPACE = {
 export const BMO_WORK = {
   role: "Senior Analyst, Market Risk (Data Scientist), Aug 2025 to present",
   headline:
-    "Builds the data platform and multi-agent LLM pipelines behind FRTB (Fundamental Review of the Trading Book) regulatory capital investigations. Risk analysts now get answers in under 15 minutes that used to take 2 days.",
+    "Builds the data platform and multi-agent LLM pipelines behind FRTB (Fundamental Review of the Trading Book) regulatory capital investigations. Risk analysts now get answers in under 15 minutes that used to take 2 days, and the daily analytics run the trading desks depend on went from 5.5 hours to 1.5 hours, so the desks get forecasting numbers early enough to act on them.",
   detail: [
+    "Partners directly with risk analysts as the technical deployment lead, redesigning manual Excel and data-cleaning processes into AI-driven workflows and driving their adoption.",
+    "Built a natural-language-to-SQL assistant so 5+ analysts query financial data in plain English instead of building spreadsheets.",
     "Designed an AI platform automating the extraction, comparison, and analysis of risk-weighted assets across FRTB SA asset classes for capital investigations.",
     "Integrated multiple LLM agents and specialized models into orchestrated pipelines that help analysts identify capital movements quickly.",
     "Built secure ML pipelines ingesting sensitive risk data inside BMO's governance framework, with logging, monitoring, and anomaly detection watching for drift.",
@@ -437,21 +441,25 @@ export const EXPERIENCE = [
     role: "Senior Analyst, Market Risk (Data Scientist)",
     period: "Aug 2025 to present",
     where: "Toronto",
-    note: "Data platform and multi-agent LLM pipelines for FRTB SA regulatory capital investigations. Cut analyst investigation time from 2 days to under 15 minutes. Ask the get_bmo_work tool for detail.",
+    note: "Data platform and multi-agent LLM pipelines for FRTB SA regulatory capital investigations. Cut analyst investigation time from 2 days to under 15 minutes, and the daily analytics run the trading desks depend on from 5.5 hours to 1.5 hours. Ask the get_bmo_work tool for detail.",
   },
   {
-    org: "Independent agentic AI lab and math tutoring",
+    // The approved career-break block (job-hunt scripts/build_resume.py
+    // EXP_BREAK_HT). Nothing agentic is dated before 2025: every workspace repo
+    // has a first commit on or after 2026-02-23, and this entry used to claim an
+    // "agentic AI lab" from 2022, which the timeline tool contradicted.
+    org: "Career break",
+    role: "Travel and tutoring",
     period: "Aug 2022 to Aug 2025",
-    role: "Independent",
     where: "Toronto",
-    note: "Tutored math for grades 1-12 while building the agentic workspace this server describes. Ask the get_workspace tool for what that became.",
+    note: "Tutored math for grades 1-12, landscaped through the summers, and travelled, including the dive trips on his dive map. The workspace this server describes started later, in February 2026.",
   },
   {
     org: "Ecobee",
     role: "Data Scientist",
     period: "May 2021 to Jul 2022",
     where: "Toronto",
-    note: "Validated the air-quality sensor for the next-generation smart thermostat, ran field trials of a Model Predictive Control thermal controller, and retrained the smart security model for a ~6% accuracy gain.",
+    note: "Validated the air-quality sensor for the next-generation smart thermostat, ran field trials of a Model Predictive Control thermal controller, and retrained the smart security model, improving accuracy by 6%.",
   },
   {
     org: "Smile CDR",
@@ -465,7 +473,7 @@ export const EXPERIENCE = [
     role: "Data Science and Embedded QA internships",
     period: "2018 to 2019",
     where: "Toronto",
-    note: "16-month professional internship. Helped build an experimentation platform deploying C++ A/B tests to thermostats in the field, cutting the firmware release cycle to every 2 weeks.",
+    note: "15-month professional internship. Helped build an experimentation platform deploying C++ A/B tests to thermostats in the field, cutting the firmware release cycle to every 2 weeks.",
   },
 ];
 
@@ -494,7 +502,7 @@ export const GAPS = [
   "His agent stack is Claude Code and MCP, not LangGraph or LangChain.",
   "He hasn't run Spark.",
   "He hasn't fine-tuned models; his work is orchestration, evaluation, and productionizing, not training.",
-  "Formal data-science job tenure is about 2 years (Ecobee + BMO), alongside the 3-year independent lab.",
+  "Full-time industry tenure: 6 months backend at Smile CDR, 14 months data science at Ecobee, and BMO since Aug 2025, plus a 15-month Ecobee internship before those.",
 ];
 
 // The 7-track timeline. Dates are git first-commits (verified 2026-07-29;
@@ -616,5 +624,5 @@ export const META = {
   what: "This server is Eric's resume, published as a Model Context Protocol server so AI assistants can query it directly.",
   why: "A resume can claim anything. This one is built as evidence: it is served by an MCP server Eric built, its narrative was written by the AI he works with every day, and every number in it was pulled from the workspace it describes.",
   how: "Hand-rolled JSON-RPC over Streamable HTTP on a Cloudflare Worker. No runtime dependencies. Stateless. The content lives in one typed data module.",
-  written: "2026-08-10",
+  written: "2026-09-14",
 };

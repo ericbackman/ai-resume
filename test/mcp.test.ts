@@ -125,6 +125,30 @@ describe("tools", () => {
     expect(content[0]!["text"]).toContain("agentic-ai");
   });
 
+  it("about's project count matches list_projects", () => {
+    const about = resultOf(call("tools/call", { name: "about" }));
+    const list = resultOf(call("tools/call", { name: "list_projects" }));
+    const aboutText = (about["content"] as Array<Record<string, unknown>>)[0]!["text"] as string;
+    const listText = (list["content"] as Array<Record<string, unknown>>)[0]!["text"] as string;
+    const listed = /# Projects \((\d+)\)/.exec(listText)?.[1];
+    expect(listed).toBeDefined();
+    expect(aboutText).toContain(`list_projects (all ${listed})`);
+  });
+
+  // Every workspace repo has a first commit on or after 2026-02-23, so any
+  // experience entry dated earlier must not claim agentic work. A 2022 "agentic
+  // AI lab" entry contradicted the timeline tool until 2026-09-14.
+  it("no experience entry before 2025 claims agentic work", () => {
+    const result = resultOf(call("tools/call", { name: "get_experience" }));
+    const text = (result["content"] as Array<Record<string, unknown>>)[0]!["text"] as string;
+    for (const line of text.split("\n").filter((l) => l.startsWith("- **"))) {
+      const years = [...line.matchAll(/\b(20\d\d)\b/g)].map((m) => Number(m[1]));
+      if (years.length > 0 && Math.min(...years) < 2025) {
+        expect(line).not.toMatch(/agentic|Claude|MCP|LLM/i);
+      }
+    }
+  });
+
   it("gaps are actually served", () => {
     const result = resultOf(call("tools/call", { name: "get_skills_and_gaps" }));
     const content = result["content"] as Array<Record<string, unknown>>;
