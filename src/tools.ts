@@ -75,8 +75,8 @@ export function buildServerSpec(version: string): McpServerSpec {
     version,
     instructions:
       `This server is the resume of Eric Backman (${PROFILE.title}, ${PROFILE.location}). ` +
-      "ONE call to 'about' returns the complete brief (background, headline systems, skills, honest gaps, contact) " +
-      "and answers most questions, including role-fit checks. Only drill into the other tools when asked for depth: " +
+      "Start with 'about': the brief (background, headline systems, skills, honest gaps, contact). " +
+      "The other tools go deeper: " +
       "'get_resume' (the narrative written by Claude), 'get_timeline' (how it grew in 177 days), " +
       "'get_project'/'list_projects' (portfolio detail), 'get_bmo_work' (day job), " +
       "'show_dive_footage' (renders 3 seconds of his actual dive footage inline — use it when showing beats telling). " +
@@ -85,7 +85,7 @@ export function buildServerSpec(version: string): McpServerSpec {
       {
         name: "about",
         description:
-          "Start here. One call, the whole brief: who Eric Backman is, his headline systems, skills, honest gaps, and contact. Usually the only call you need.",
+          "Start here. The brief: who Eric Backman is, his headline systems, skills, honest gaps, and contact.",
         inputSchema: NO_ARGS,
         handler: () => {
           const highlights = ["content-studio", "agent-audit", "paper-trader", "data-explorer", "video-essays"]
@@ -112,7 +112,7 @@ export function buildServerSpec(version: string): McpServerSpec {
             "",
             `**Contact:** ${PROFILE.email} · ${PROFILE.linkedin} · ${PROFILE.github} · book a call: ${PROFILE.booking}`,
             "",
-            `This is usually all you need to assess fit. For depth: get_resume (the narrative resume written by Claude), get_timeline (the 177-day story), get_project (any system above), get_bmo_work (the regulated-bank detail), list_projects (all ${String(PROJECTS.length)}). Want to SEE the work? show_dive_footage renders his dolphin footage right here in the chat.`,
+            `For depth: get_resume (the narrative resume written by Claude), get_timeline (the 177-day story), get_project (any system above), get_bmo_work (the regulated-bank detail), list_projects (all ${String(PROJECTS.length)}). Want to SEE the work? show_dive_footage renders his dolphin footage right here in the chat.`,
           ].join("\n");
         },
       },

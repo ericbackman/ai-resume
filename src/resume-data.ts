@@ -533,7 +533,7 @@ export const TIMELINE: TimelineTrack[] = [
       { date: "2026-05-10", label: "Bet tracker", row: "below" },
       { date: "2026-06-28", label: "Paper trader", row: "above" },
       { date: "2026-07-10", label: "Video essays", row: "below" },
-      { date: "2026-08-08", label: "Voice clone", row: "above" },
+      { date: "2026-08-08", label: "Own-voice clone", row: "above", anchor: "end" },
     ],
   },
   {
