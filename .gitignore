@@ -4,3 +4,12 @@ dist/
 .dev.vars
 *.local
 worker-configuration.d.ts
+
+# Secrets: wrangler 4 loads .env, .env.local and .env.<name> as Worker secrets; STANDARDS Tier 0 rule 2
+.env
+.env.*
+!.env.example
+*.env
+credentials.json
+token.json
+*.db
