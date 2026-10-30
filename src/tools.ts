@@ -68,6 +68,8 @@ function formatProjectFull(p: Project): string {
   return lines.join("\n");
 }
 
+export const HIGHLIGHT_SLUGS = ["content-studio", "agent-audit", "paper-trader", "data-explorer", "video-essays"];
+
 export function buildServerSpec(version: string): McpServerSpec {
   return {
     name: "eric-backman-resume",
@@ -88,9 +90,11 @@ export function buildServerSpec(version: string): McpServerSpec {
           "Start here. The brief: who Eric Backman is, his headline systems, skills, honest gaps, and contact.",
         inputSchema: NO_ARGS,
         handler: () => {
-          const highlights = ["content-studio", "agent-audit", "paper-trader", "data-explorer", "video-essays"]
-            .map((slug) => PROJECTS.find((p) => p.slug === slug))
-            .filter((p): p is Project => p !== undefined);
+          const highlights = HIGHLIGHT_SLUGS.map((slug) => {
+            const project = PROJECTS.find((p) => p.slug === slug);
+            if (project === undefined) throw new Error(`about: no project with slug ${slug}`);
+            return project;
+          });
           return [
             `# ${PROFILE.name}, the one-call brief`,
             PROFILE.title + ", " + PROFILE.location,
