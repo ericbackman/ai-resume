@@ -119,22 +119,6 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
-    slug: "paper-trader",
-    name: "Agentic paper trader",
-    oneLiner: "Claude runs a trading session every weekday morning and publishes its reasoning.",
-    description:
-      "Every weekday at 9:45 Claude reviews the portfolio through Alpaca's paper API, places trades, and writes its reasoning. A Cloudflare Worker renders the last 90 days of decisions on a public dashboard. Paper only, by design: the point is measuring how well an agent operates a full decision loop unattended, in public, with a paper trail.",
-    status: "Runs every weekday at 9:45, dashboard live at trader.ericbackman.com",
-    tech: ["Python", "alpaca-py (paper only)", "Anthropic SDK", "TypeScript", "Cloudflare Workers + D1"],
-    numbers: ["90-day public decision log"],
-    tags: ["agentic-ai", "automated", "live"],
-    url: "https://trader.ericbackman.com",
-    parts: [
-      { name: "trading engine", note: "Python session runner: portfolio review, trade placement, written reasoning" },
-      { name: "report worker", note: "TypeScript Worker + D1; token-gated write path, public read path" },
-    ],
-  },
-  {
     slug: "video-essays",
     name: "Claim-locked video essays",
     oneLiner: "Data-driven video essays where a fabricated number is structurally impossible.",
@@ -191,22 +175,6 @@ export const PROJECTS: Project[] = [
       "The survey produced a finding worth the build: every conformant store checked was still serving a legacy endpoint scheduled to be switched off, and one of its tools has no equivalent in the new protocol at all.",
       "The monitor exists because merchants re-fetch that profile on roughly every tool call, so a malformed profile fails the whole shopping session rather than degrading gracefully.",
       "The prober claims no agent identity on the wire. A call that acts on a store has to name its calling agent, so it only lists tools and never makes one.",
-    ],
-  },
-  {
-    slug: "askviz",
-    name: "AskViz",
-    oneLiner: "Ask a plain-English question about your data, get a chart on your phone.",
-    description:
-      "A Cloudflare Worker turns a plain-English question into a Vega-Lite chart over Eric's real (personal) betting history, rendered in a phone PWA. The AI-safety design is the point: Claude never sees a raw record and never does arithmetic. It only chooses a grouping and axis mapping; TypeScript computes every figure, so a fabricated number is structurally impossible. Ships an offline planner that works with no API key at all.",
-    status: "Live at viz.ericbackman.com",
-    tech: ["TypeScript", "Cloudflare Workers", "Claude API", "Vega-Lite", "PWA"],
-    numbers: ["19 passing tests", "~20 KB gzipped bundle"],
-    tags: ["agentic-ai", "data", "live"],
-    url: "https://viz.ericbackman.com",
-    detail: [
-      "Division of labor is the design: the model chooses grouping and axes, TypeScript computes every figure. Chart wrong at worst, number never wrong.",
-      "Ships an offline planner covering common questions, so the app works with no API key at all.",
     ],
   },
   {
@@ -486,8 +454,6 @@ export const TIMELINE: TimelineTrack[] = [
     question: "Can Claude answer a sports question from a real database?",
     events: [
       { date: "2026-02-23", label: "Sports DBs", row: "above" },
-      { date: "2026-05-10", label: "Bet tracker", row: "below" },
-      { date: "2026-06-28", label: "Paper trader", row: "above" },
       { date: "2026-07-10", label: "Video essays", row: "below" },
       { date: "2026-08-08", label: "Own-voice clone", row: "below2" },
     ],

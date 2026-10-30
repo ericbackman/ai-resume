@@ -68,7 +68,7 @@ function formatProjectFull(p: Project): string {
   return lines.join("\n");
 }
 
-export const HIGHLIGHT_SLUGS = ["content-studio", "agent-audit", "paper-trader", "data-explorer", "video-essays"];
+export const HIGHLIGHT_SLUGS = ["content-studio", "agent-audit", "ucp-probe", "data-explorer", "video-essays"];
 
 export function buildServerSpec(version: string): McpServerSpec {
   return {
