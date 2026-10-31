@@ -72,7 +72,7 @@ export const PROJECTS: Project[] = [
     name: "Scuba Sessions studio (YouTube + Instagram)",
     oneLiner: "Tools that let Claude turn a pile of raw dive footage into a running YouTube channel and an Instagram feed.",
     description:
-      "Claude takes Eric's raw 4K scuba footage and does the rest: reviews the clip library, defines each cut, color-corrects and reframes to a 9:16 Short in one ffmpeg pass, writes the title, uploads as private, and schedules the publish drip. Daily jobs keep the queue moving. Since August a single weekly manager runs both surfaces at once, with a sync gate that stops the same clip going out twice. Eric dives and approves. Hour-long ambient dive videos ship through the same tools, with a 6-agent research, storyboard, and review crew behind the narrated ones.",
+      "Claude takes Eric's raw 4K scuba footage and does the rest: reviews the clip library, defines each cut, color-corrects and reframes to a 9:16 Short in one ffmpeg pass, writes the title, uploads as private, and schedules the publish drip. Daily jobs keep the queue moving. Since August a single weekly manager runs both surfaces at once, with a sync gate that stops the same clip going out twice. Eric dives and ratifies each Shorts refill. Hour-long ambient dive videos ship through the same tools, with a 6-agent research, storyboard, and review crew behind the narrated ones.",
     status: `Live channel (${CHANNEL.handle}) plus Instagram Reels, 7 scheduled jobs`,
     tech: ["Python (stdlib render pipeline)", "ffmpeg", "YouTube Data + Analytics APIs", "Instagram Graph API", "Claude subagents"],
     numbers: [
@@ -94,7 +94,7 @@ export const PROJECTS: Project[] = [
     detail: [
       "The manager is an org chart, not a prompt: an Opus agent owns the plan and hands the deterministic legs (analytics, YouTube ops, Instagram ops) to Sonnet agents whose tool lists omit every publish and delete call.",
       "Formats are greenlit on data: a 64-minute sleep-video pilot earned 19.6 watch-hours against 5.6 and 1.3 for its comparables, so the format shipped and hour-long ambient dives are now a regular slot.",
-      "The human gate is structural: scheduled jobs upload as private only. Nothing goes public without Eric's review, and the Instagram publisher ships registered-disabled until he confirms the manual warm-up posts happened.",
+      "Scheduled jobs post on a daily drip, unattended, so the checks run before a post goes out. A gate refuses to post a clip to Instagram ahead of its YouTube date. Since September Eric ratifies each monthly Shorts refill, and long-form waits for his review by default.",
     ],
   },
   {
@@ -333,7 +333,7 @@ export const WORKSPACE = {
   ],
   principles: [
     "Silent wrong behavior is the enemy: a missing credential stops the run on the spot, every external call gets a timeout and retry, no bare exception handlers, no fallback defaults that hide the real error.",
-    "Model tiering as org design: Sonnet executes playbooks, Opus changes playbooks, Eric approves what the public sees.",
+    "Model tiering as org design: Sonnet executes playbooks, Opus changes playbooks, Eric decides what may go public.",
     "Fresh-context review before anything ships, because an author is blind to its own tells.",
     "Rule of two: the second time a pattern is built in a different repo, it is promoted to one canonical home with a tracked consumer list. Clones carry a birthmark comment naming their source.",
     "Auto-commit hooks stage tracked files only, so a stray secret can never land in git. A leak scanner runs before every commit.",
