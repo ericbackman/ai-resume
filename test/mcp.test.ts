@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { handleMessage, parseErrorResult, type McpServerSpec } from "../src/mcp";
-import { buildServerSpec } from "../src/tools";
+import { PROJECTS } from "../src/resume-data";
+import { buildServerSpec, HIGHLIGHT_SLUGS } from "../src/tools";
 
 const spec: McpServerSpec = buildServerSpec("test");
 
@@ -154,5 +155,17 @@ describe("tools", () => {
     const content = result["content"] as Array<Record<string, unknown>>;
     expect(content[0]!["text"]).toContain("hasn't");
     expect(content[0]!["text"]).toContain("Spark");
+  });
+});
+
+describe("the about brief", () => {
+  it("names every highlighted project", () => {
+    const result = resultOf(call("tools/call", { name: "about", arguments: {} }));
+    const about = (result["content"] as Array<Record<string, unknown>>)[0]?.["text"] as string;
+    for (const slug of HIGHLIGHT_SLUGS) {
+      const project = PROJECTS.find((p) => p.slug === slug);
+      expect(project, slug).toBeDefined();
+      expect(about).toContain(project?.name);
+    }
   });
 });

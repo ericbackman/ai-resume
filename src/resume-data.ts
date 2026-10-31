@@ -119,22 +119,6 @@ export const PROJECTS: Project[] = [
     ],
   },
   {
-    slug: "paper-trader",
-    name: "Agentic paper trader",
-    oneLiner: "Claude runs a trading session every weekday morning and publishes its reasoning.",
-    description:
-      "Every weekday at 9:45 Claude reviews the portfolio through Alpaca's paper API, places trades, and writes its reasoning. A Cloudflare Worker renders the last 90 days of decisions on a public dashboard. Paper only, by design: the point is measuring how well an agent operates a full decision loop unattended, in public, with a paper trail.",
-    status: "Runs every weekday at 9:45, dashboard live at trader.ericbackman.com",
-    tech: ["Python", "alpaca-py (paper only)", "Anthropic SDK", "TypeScript", "Cloudflare Workers + D1"],
-    numbers: ["90-day public decision log"],
-    tags: ["agentic-ai", "automated", "live"],
-    url: "https://trader.ericbackman.com",
-    parts: [
-      { name: "trading engine", note: "Python session runner: portfolio review, trade placement, written reasoning" },
-      { name: "report worker", note: "TypeScript Worker + D1; token-gated write path, public read path" },
-    ],
-  },
-  {
     slug: "video-essays",
     name: "Claim-locked video essays",
     oneLiner: "Data-driven video essays where a fabricated number is structurally impossible.",
@@ -190,53 +174,7 @@ export const PROJECTS: Project[] = [
     detail: [
       "The survey produced a finding worth the build: every conformant store checked was still serving a legacy endpoint scheduled to be switched off, and one of its tools has no equivalent in the new protocol at all.",
       "The monitor exists because merchants re-fetch that profile on roughly every tool call, so a malformed profile fails the whole shopping session rather than degrading gracefully.",
-      "It deliberately publishes no agent profile of its own. A call that acts on a store has to identify the calling agent, so inventing an identity would be a lie on the wire.",
-    ],
-  },
-  {
-    slug: "buddycheck-clips",
-    name: "Review-gated clip pipeline",
-    oneLiner: "Turns a folder of footage into vertical clips, where the thing you approved is literally the thing that ships.",
-    description:
-      "A zero-dependency package (the standard library plus the ffmpeg binary already on the machine) that trims, color-corrects and reframes raw footage. The review gate is the point. Before anything renders, it writes a contact sheet of three stills pushed through the exact filtergraph that will publish: same color preset, same crop window, same burned text at the same size relative to the frame. The sheet imports the publish graph rather than assembling a preview of its own, because a review sheet built from a different graph is a review of a video that does not exist.",
-    status: "v0.1.0, generalized out of the dive studio",
-    tech: ["Python (stdlib only)", "ffmpeg"],
-    numbers: ["203 tests", "0 runtime dependencies"],
-    tags: ["agentic-ai", "automated"],
-    detail: [
-      "The verdict is enforced in the code path rather than in a prompt: a strict render builds only what a human marked keep, nothing ever builds something marked cut, and no function in the package can create a clip already marked keep.",
-      "This is the reusable core pulled out of the studio that runs the live channel, so the gate is one an agent has actually been held to rather than a hypothetical.",
-    ],
-  },
-  {
-    slug: "commerce-experiment",
-    name: "Pre-registered commerce experiment",
-    oneLiner: "A $500 business experiment run like a study, with the money ledger in public.",
-    description:
-      "A data-art store whose product geometry is computed from real sports databases and validated in-script against known public facts. The discipline is the deliverable: a $500 hard cap, every dollar posted to a public ledger from the first one, decision gates written down before the data arrives, and losing design families killed on a threshold set in advance. Demand is tested before any store spend, and the paid-ad reserve stays locked behind a gate that has not opened.",
-    status: "Pre-launch: demand test drafted, store not yet created",
-    tech: ["Python (stdlib core)", "SQLite", "Shopify", "Printify"],
-    numbers: ["$500 hard cap, $12.20 spent so far", "4-stage KPI tree, every gate pre-registered"],
-    tags: ["data"],
-    detail: [
-      "One file is the source of truth for every metric definition and decision gate. A number anywhere else that disagrees with it is treated as a bug, not a discrepancy.",
-      "Publishing the costs is a constraint rather than bookkeeping: a venture that shows its spend cannot quietly become a hobby that claims an outcome without saying what the outcome cost.",
-    ],
-  },
-  {
-    slug: "askviz",
-    name: "AskViz",
-    oneLiner: "Ask a plain-English question about your data, get a chart on your phone.",
-    description:
-      "A Cloudflare Worker turns a plain-English question into a Vega-Lite chart over Eric's real (personal) betting history, rendered in a phone PWA. The AI-safety design is the point: Claude never sees a raw record and never does arithmetic. It only chooses a grouping and axis mapping; TypeScript computes every figure, so a fabricated number is structurally impossible. Ships an offline planner that works with no API key at all.",
-    status: "Live at viz.ericbackman.com",
-    tech: ["TypeScript", "Cloudflare Workers", "Claude API", "Vega-Lite", "PWA"],
-    numbers: ["19 passing tests", "~20 KB gzipped bundle"],
-    tags: ["agentic-ai", "data", "live"],
-    url: "https://viz.ericbackman.com",
-    detail: [
-      "Division of labor is the design: the model chooses grouping and axes, TypeScript computes every figure. Chart wrong at worst, number never wrong.",
-      "Ships an offline planner covering common questions, so the app works with no API key at all.",
+      "The prober claims no agent identity on the wire. A call that acts on a store has to name its calling agent, so it only lists tools and never makes one.",
     ],
   },
   {
@@ -244,7 +182,7 @@ export const PROJECTS: Project[] = [
     name: "Sports data platform",
     oneLiner: "Local multi-sport SQLite databases built to answer any sports question in plain English.",
     description:
-      "Normalized databases for the NBA, NFL, NHL, PGA, and betting markets, with documented schemas and a read-only MCP server so any Claude surface can translate a plain-English question into validated SQL and check the answer against a known fact. Fed by a separate daily ingestion service (the write path) on a home server; this repo is the read path.",
+      "Normalized databases for the NBA, NFL, NHL, and PGA, with documented schemas and a read-only MCP server so any Claude surface can translate a plain-English question into validated SQL and check the answer against a known fact. Fed by a separate daily ingestion service (the write path) on a home server; this repo is the read path.",
     status: "Complete and in daily use",
     tech: ["Python", "SQLite", "MCP server", "nba_api", "nflverse"],
     numbers: ["7M-row golf holes table", "NBA box scores 1946-present", "NFL 1999-present", "NHL 1997-present"],
@@ -313,7 +251,7 @@ export const PROJECTS: Project[] = [
     description:
       "Fully static exam-prep platform built on evidence-based learning: retrieval practice, FSRS-4.5 spaced repetition per question, interleaving, adaptive sampling by exam weight and per-book weakness, and blueprint-weighted timed mocks. Content was AI-authored under a validating build script; the served site makes zero API calls.",
     status: "Live at frm.ericbackman.com, private behind Cloudflare Access (it is his own study tool)",
-    tech: ["Python build", "static HTML/JS", "vendored KaTeX", "GitHub Pages"],
+    tech: ["Python build", "static HTML/JS", "vendored KaTeX", "Cloudflare Pages"],
     numbers: ["501 questions across 12 banks", "60 textbook-chapter note sets"],
     tags: ["web", "live"],
   },
@@ -349,20 +287,18 @@ export const PROJECTS: Project[] = [
   {
     slug: "discord-bots",
     name: "Discord bot fleet",
-    oneLiner: "A canonical Worker bot template cloned into 5 live prediction and clan bots.",
+    oneLiner: "A canonical Worker bot template cloned into picks and clan bots.",
     description:
-      "Serverless Discord bots on Cloudflare Workers: a daily sports picks league (NBA/NHL/MLB/NFL), sumo and F1 variants, and an OSRS clan tracker (public repo). One canonical template; fixes land there first and sweep the clones, each carrying a birthmark comment naming its source. Ed25519-verified interactions, D1 storage, idempotent 15-minute crons.",
+      "Serverless Discord bots on Cloudflare Workers: a daily sports picks league (NBA/NHL/MLB/NFL), a sumo variant, and an OSRS clan tracker (public repo). One canonical template; fixes land there first and sweep the clones, each carrying a birthmark comment naming its source. Ed25519-verified interactions, D1 storage, idempotent scheduled runs.",
     status: "Live bots, scheduled crons",
     tech: ["TypeScript", "Cloudflare Workers + D1", "Discord interactions", "vitest"],
-    numbers: ["5 bots from 1 canonical template"],
+    numbers: ["3 live bots from 1 canonical template (checked 2026-10-30)"],
     tags: ["web", "live", "automated"],
     url: "https://github.com/ericbackman/osrs-clan-bot",
     parts: [
       { name: "picks-worker", note: "the canonical template: daily NBA/NHL/MLB/NFL picks league with tap-to-pick buttons" },
       { name: "sumo-picks", note: "honbasho league; picks lock at 15:45 JST, upsets score extra" },
-      { name: "f1-picks", note: "Grand Prix weekend markets: pole, Q1 casualty, ordered podium with partial credit" },
       { name: "osrs-clan-bot", note: "clan XP/boss/drop race tracker, public repo", url: "https://github.com/ericbackman/osrs-clan-bot" },
-      { name: "wow-clan-bot", note: "WoW clan variant" },
     ],
     detail: [
       "The reuse discipline is the point: a fix to the shared REST layer landed at the canonical home and was swept to every clone in one audited pass, catching two bots whose error handling had silently drifted.",
@@ -373,23 +309,11 @@ export const PROJECTS: Project[] = [
     name: "Life Tracker, MCP server + personal data platform",
     oneLiner: "Personal data platform with an MCP server exposing read-only query tools to Claude.",
     description:
-      "Journal, tasks, health, and reading data behind a FastAPI backend with SQLite persistence and encryption at rest. A FastMCP server exposes 5 read-only query tools, with a server-side gate excluding sensitive entries by default. Now pivoting to a native iOS app: SwiftUI, CloudKit private database, no backend, Anthropic API called from the device.",
+      "Food, diary, tasks, health, and media land in one flexible table, served by a Cloudflare Worker with a SQLite-backed Durable Object as the system of record and sensitive entries encrypted at rest. A read-only FastMCP server gives Claude 5 query tools over the live tracker through the Worker's export API, with a server-side gate excluding sensitive entries by default.",
     status: "Complete, in personal use",
-    tech: ["Python", "FastAPI", "FastMCP", "SQLite", "SwiftUI", "CloudKit"],
-    numbers: ["5 read-only MCP tools"],
+    tech: ["Cloudflare Workers", "Durable Objects", "SQLite", "FastMCP"],
+    numbers: ["5 read-only MCP query tools"],
     tags: ["agentic-ai", "data"],
-  },
-  {
-    slug: "side-bet",
-    name: "Side Bet",
-    oneLiner: "A multiplayer party game, built two-person with a protected-main PR workflow.",
-    description:
-      "Friends bet sportsbook-style on mini-games they play against each other. Unity with host-authoritative netcode over Unity Relay. Built with a friend partly to run a real team git workflow: main is protected, every change needs a PR, an approval, and a green test check.",
-    status: "In development, public repo, CI green",
-    tech: ["Unity", "C#", "Netcode for GameObjects", "GitHub Actions CI"],
-    numbers: ["28 unit tests on the core betting logic"],
-    tags: ["web"],
-    url: "https://github.com/ericbackman/side-bet",
   },
 ];
 
@@ -530,8 +454,6 @@ export const TIMELINE: TimelineTrack[] = [
     question: "Can Claude answer a sports question from a real database?",
     events: [
       { date: "2026-02-23", label: "Sports DBs", row: "above" },
-      { date: "2026-05-10", label: "Bet tracker", row: "below" },
-      { date: "2026-06-28", label: "Paper trader", row: "above" },
       { date: "2026-07-10", label: "Video essays", row: "below" },
       { date: "2026-08-08", label: "Own-voice clone", row: "below2" },
     ],
@@ -555,7 +477,7 @@ export const TIMELINE: TimelineTrack[] = [
     events: [
       { date: "2026-06-10", label: "Groovy reborn", row: "above" },
       { date: "2026-06-12", label: "Picks league, first Worker", row: "below" },
-      { date: "2026-07-18", label: "5-bot fleet", row: "above", anchor: "end" },
+      { date: "2026-07-18", label: "Bot fleet", row: "above", anchor: "end" },
       { date: "2026-08-13", label: "Picks hub", row: "below" },
     ],
   },
