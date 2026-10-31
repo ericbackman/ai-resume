@@ -100,6 +100,10 @@ npx wrangler rollback        # interactive: pick the previous deployment
 
 ## Maintenance log
 
+- **2026-10-31:** the dive-studio text now says what publishes unattended and which gates it
+  passes. Each claim was checked against the channel's own code.
+- **2026-10-30:** project list brought up to date (PR #10, version `d9d96080`). Removed cut,
+  parked and never-deployed entries and narrowed the home-systems list.
 - **2026-09-14:** content accuracy refresh (PR #2, version `ccbc2e8d`). Four simulated
   recruiter assistants read only this server first; the skeptic's top finding was the
   2022-2025 "agentic AI lab" entry contradicting `get_timeline`. Replaced with the approved
