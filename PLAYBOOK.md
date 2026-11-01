@@ -101,7 +101,9 @@ npx wrangler rollback        # interactive: pick the previous deployment
 ## Maintenance log
 
 - **2026-10-31:** the dive-studio text now says what publishes unattended and which gates it
-  passes. Each claim was checked against the channel's own code.
+  passes. Each claim was checked against the channel's own code. The newsletter entry lost a
+  stale status and issue count and its `live` tag, since it links no page, and its digest and
+  ranking text now match the code.
 - **2026-10-30:** project list brought up to date (PR #10, version `d9d96080`). Removed cut,
   parked and never-deployed entries and narrowed the home-systems list.
 - **2026-09-14:** content accuracy refresh (PR #2, version `ccbc2e8d`). Four simulated
